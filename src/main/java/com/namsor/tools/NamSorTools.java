@@ -136,26 +136,7 @@ public class NamSorTools {
 
     }
 
-    private static List<String> readFile(String fileName) throws IOException {
-        List<String> donePlace = new ArrayList();
-        File exists = new File(fileName);
-        if (!exists.exists()) {
-            return donePlace;
-        }
-        BufferedReader br = new BufferedReader(new FileReader(fileName));
-        String doneLine = br.readLine();
-        int line = 0;
-        while (doneLine != null) {
-            donePlace.add(doneLine.trim());
-            doneLine = br.readLine();
-            if (line % 100000 == 0) {
-                Logger.getLogger(IsDone.class.getName()).info("Loading " + fileName + ":" + line);
-            }
-            line++;
-        }
-        br.close();
-        return donePlace;
-    }
+    
 
     public static void main(String[] args) {
         // create the parser
@@ -338,13 +319,13 @@ public class NamSorTools {
                         if( len < 0 ) {
                             len = existingData.length;
                         } else if( len != existingData.length ) {
-                            Logger.getLogger(IsDone.class.getName()).warning("Line "+line+" doneLine="+doneLine+" len="+existingData.length+"!="+len);
+                            Logger.getLogger(NamSorTools.class.getName()).warning("Line "+line+" doneLine="+doneLine+" len="+existingData.length+"!="+len);
                         }
                         done.add(existingData[0]);
                     }
                     doneLine = readerDone.readLine();
                     if (line % 100000 == 0) {
-                        Logger.getLogger(IsDone.class.getName()).info("Loading from existing " + outputFileName + ":" + line);
+                        Logger.getLogger(NamSorTools.class.getName()).info("Loading from existing " + outputFileName + ":" + line);
                     }
                     line++;
                 }
