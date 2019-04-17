@@ -53,6 +53,12 @@ To append origin to a list of first and last names : John|Smith
 java -jar target\NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -f fnln -i samples\some_fnln.txt -service origin
 ```
 
+To parse names into first and last name components (John Smith or Smith, John -> John|Smith)
+
+```bash
+java -jar target\NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -f name -i samples\some_name.txt -service parse
+```
+
 The recommended input format is to specify a unique ID and a geographic context (if known) as a countryIso2 code. 
 
 To append gender to a list of id, first and last names, geographic context : id12|John|Smith|US
