@@ -66,7 +66,11 @@ To append gender to a list of id, first and last names, geographic context : id1
 ```bash
 java -jar target\NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -uid -f fnlngeo -i samples\some_idfnlngeo.txt -service gender
 ```
+To parse name into first and last name components, a geographic context is recommended (esp. for Latam names) : id12|John Smith|US
 
+```bash
+java -jar target\NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -uid -f namegeo -i samples\some_idnamegeo.txt -service parse
+```
 On large input files with a unique ID, it is possible to recover from where the process crashed and append to the existint output file, for example :
 
 ```bash
