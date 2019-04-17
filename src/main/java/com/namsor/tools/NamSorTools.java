@@ -14,14 +14,20 @@ import com.namsor.sdk2.model.BatchFirstLastNameGeoIn;
 import com.namsor.sdk2.model.BatchFirstLastNameIn;
 import com.namsor.sdk2.model.BatchFirstLastNameOriginedOut;
 import com.namsor.sdk2.model.BatchFirstLastNameUSRaceEthnicityOut;
+import com.namsor.sdk2.model.BatchPersonalNameGenderedOut;
+import com.namsor.sdk2.model.BatchPersonalNameGeoIn;
+import com.namsor.sdk2.model.BatchPersonalNameIn;
+import com.namsor.sdk2.model.BatchPersonalNameParsedOut;
 import com.namsor.sdk2.model.FirstLastNameDiasporaedOut;
 import com.namsor.sdk2.model.FirstLastNameGenderedOut;
 import com.namsor.sdk2.model.FirstLastNameGeoIn;
 import com.namsor.sdk2.model.FirstLastNameIn;
 import com.namsor.sdk2.model.FirstLastNameOriginedOut;
 import com.namsor.sdk2.model.FirstLastNameUSRaceEthnicityOut;
+import com.namsor.sdk2.model.PersonalNameGenderedOut;
 import com.namsor.sdk2.model.PersonalNameGeoIn;
 import com.namsor.sdk2.model.PersonalNameIn;
+import com.namsor.sdk2.model.PersonalNameParsedOut;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -135,8 +141,6 @@ public class NamSorTools {
         recover = commandLineOptions.hasOption("recover");
 
     }
-
-    
 
     public static void main(String[] args) {
         // create the parser
@@ -316,10 +320,10 @@ public class NamSorTools {
                 while (doneLine != null) {
                     if (!doneLine.startsWith("#") && !doneLine.isEmpty()) {
                         String[] existingData = doneLine.split("\\|");
-                        if( len < 0 ) {
+                        if (len < 0) {
                             len = existingData.length;
-                        } else if( len != existingData.length ) {
-                            Logger.getLogger(NamSorTools.class.getName()).warning("Line "+line+" doneLine="+doneLine+" len="+existingData.length+"!="+len);
+                        } else if (len != existingData.length) {
+                            Logger.getLogger(NamSorTools.class.getName()).warning("Line " + line + " doneLine=" + doneLine + " len=" + existingData.length + "!=" + len);
                         }
                         done.add(existingData[0]);
                     }
@@ -377,7 +381,7 @@ public class NamSorTools {
             throw new NamSorToolException("Invalid service " + service);
         }
         boolean appendHeader = getCommandLineOptions().hasOption("header");
-        if ( appendHeader && !isRecover() || (isRecover() && done.isEmpty()) ) {
+        if (appendHeader && !isRecover() || (isRecover() && done.isEmpty())) {
             // don't append a header to an existing file
             appendHeader(writer, inputHeaders, outputHeaders);
         }
@@ -401,7 +405,7 @@ public class NamSorTools {
                 }
                 String[] lineData = line.split("\\|");
                 if (lineData.length != dataLenExpected) {
-                    throw new NamSorToolException("Line " + lineId + ", expected input with format : " + dataFormatExpected.toString());
+                    throw new NamSorToolException("Line " + lineId + ", expected input with format : " + dataFormatExpected.toString()+" line = "+line);
                 }
                 String uid = null;
                 int col = 0;
@@ -522,12 +526,56 @@ public class NamSorTools {
         return result;
     }
 
+    private Map<String, PersonalNameGenderedOut> processGenderFull(List<PersonalNameIn> names) throws ApiException, IOException {
+        Map<String, PersonalNameGenderedOut> result = new HashMap();
+        BatchPersonalNameIn body = new BatchPersonalNameIn();
+        body.setPersonalNames(names);
+        BatchPersonalNameGenderedOut gendered = api.genderFullBatch(body);
+        for (PersonalNameGenderedOut personalName : gendered.getPersonalNames()) {
+            result.put(personalName.getId(), personalName);
+        }
+        return result;
+    }
+
+    private Map<String, PersonalNameGenderedOut> processGenderFullGeo(List<PersonalNameGeoIn> names) throws ApiException, IOException {
+        Map<String, PersonalNameGenderedOut> result = new HashMap();
+        BatchPersonalNameGeoIn body = new BatchPersonalNameGeoIn();
+        body.setPersonalNames(names);
+        BatchPersonalNameGenderedOut gendered = api.genderFullGeoBatch(body);
+        for (PersonalNameGenderedOut personalName : gendered.getPersonalNames()) {
+            result.put(personalName.getId(), personalName);
+        }
+        return result;
+    }
+
+    private Map<String, PersonalNameParsedOut> processParse(List<PersonalNameIn> names) throws ApiException, IOException {
+        Map<String, PersonalNameParsedOut> result = new HashMap();
+        BatchPersonalNameIn body = new BatchPersonalNameIn();
+        body.setPersonalNames(names);
+        BatchPersonalNameParsedOut parsed = api.parseNameBatch(body);
+        for (PersonalNameParsedOut personalName : parsed.getPersonalNames()) {
+            result.put(personalName.getId(), personalName);
+        }
+        return result;
+    }
+
     private Map<String, FirstLastNameGenderedOut> processGenderGeo(List<FirstLastNameGeoIn> names) throws ApiException, IOException {
         Map<String, FirstLastNameGenderedOut> result = new HashMap();
         BatchFirstLastNameGeoIn body = new BatchFirstLastNameGeoIn();
         body.setPersonalNames(names);
         BatchFirstLastNameGenderedOut gendered = api.genderGeoBatch(body);
         for (FirstLastNameGenderedOut personalName : gendered.getPersonalNames()) {
+            result.put(personalName.getId(), personalName);
+        }
+        return result;
+    }
+
+    private Map<String, PersonalNameParsedOut> processParseGeo(List<PersonalNameGeoIn> names) throws ApiException, IOException {
+        Map<String, PersonalNameParsedOut> result = new HashMap();
+        BatchPersonalNameGeoIn body = new BatchPersonalNameGeoIn();
+        body.setPersonalNames(names);
+        BatchPersonalNameParsedOut parsed = api.parseNameGeoBatch(body);
+        for (PersonalNameParsedOut personalName : parsed.getPersonalNames()) {
             result.put(personalName.getId(), personalName);
         }
         return result;
@@ -571,6 +619,26 @@ public class NamSorTools {
             }
             firstLastNamesGeoIn.clear();
         }
+        if (flushBuffers && !personalNamesIn.isEmpty() || personalNamesIn.size() >= BATCH_SIZE) {
+            if (service.equals(SERVICE_NAME_PARSE)) {
+                Map<String, PersonalNameParsedOut> parseds = processParse(new ArrayList(personalNamesIn.values()));
+                append(writer, outputHeaders, personalNamesIn, parseds);
+            } else if (service.equals(SERVICE_NAME_GENDER)) {
+                Map<String, FirstLastNameGenderedOut> genders = processGenderFull(new ArrayList(personalNamesIn.values()));
+                append(writer, outputHeaders, personalNamesIn, genders);
+            }
+            firstLastNamesIn.clear();
+        }
+        if (flushBuffers && !personalNamesGeoIn.isEmpty() || personalNamesGeoIn.size() >= BATCH_SIZE) {
+            if (service.equals(SERVICE_NAME_PARSE)) {
+                Map<String, PersonalNameParsedOut> parseds = processParseGeo(new ArrayList(personalNamesGeoIn.values()));
+                append(writer, outputHeaders, personalNamesGeoIn, parseds);
+            } else if (service.equals(SERVICE_NAME_GENDER)) {
+                Map<String, FirstLastNameGenderedOut> genders = processGenderFullGeo(new ArrayList(personalNamesGeoIn.values()));
+                append(writer, outputHeaders, personalNamesGeoIn, genders);
+            }
+            firstLastNamesIn.clear();
+        }
     }
 
     private void append(Writer writer, String[] outputHeaders, Map input, Map output) throws IOException {
@@ -612,6 +680,15 @@ public class NamSorTools {
             } else if (outputObj instanceof FirstLastNameUSRaceEthnicityOut) {
                 FirstLastNameUSRaceEthnicityOut firstLastNameUSRaceEthnicityOut = (FirstLastNameUSRaceEthnicityOut) outputObj;
                 writer.append(firstLastNameUSRaceEthnicityOut.getRaceEthnicity() + separatorOut + firstLastNameUSRaceEthnicityOut.getRaceEthnicityAlt() + separatorOut + firstLastNameUSRaceEthnicityOut.getScore() + separatorOut);
+            } else if (outputObj instanceof PersonalNameGenderedOut) {
+                PersonalNameGenderedOut personalNameGenderedOut = (PersonalNameGenderedOut) outputObj;
+                writer.append(personalNameGenderedOut.getLikelyGender().getValue() + separatorOut + personalNameGenderedOut.getScore() + separatorOut + personalNameGenderedOut.getGenderScale() + separatorOut);
+            } else if (outputObj instanceof PersonalNameParsedOut) {
+                PersonalNameParsedOut personalNameParsedOut = (PersonalNameParsedOut) outputObj;
+                //  {"firstNameParsed", "lastNameParsed", "nameParserType", "nameParserTypeAlt", "nameParserTypeScore"};
+                String firstNameParsed = (personalNameParsedOut.getFirstLastName()!=null?personalNameParsedOut.getFirstLastName().getFirstName():"");
+                String lastNameParsed = (personalNameParsedOut.getFirstLastName()!=null?personalNameParsedOut.getFirstLastName().getLastName():"");
+                writer.append(firstNameParsed + separatorOut + lastNameParsed+separatorOut+ personalNameParsedOut.getNameParserType()+separatorOut+personalNameParsedOut.getNameParserTypeAlt()+ separatorOut+personalNameParsedOut.getScore() + separatorOut);
             } else {
                 throw new IllegalArgumentException("Serialization of " + outputObj.getClass().getName() + " not supported");
             }
