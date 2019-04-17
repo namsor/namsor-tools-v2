@@ -3,7 +3,7 @@ NamSor command line tools, to append gender, origin, diaspora or us 'race'/ethni
 
 ## Installation
 
-Use Maven to build the executable JAR file
+Please install https://github.com/namsor/namsor-java-sdk2 first, then use Maven to build the executable JAR file
 
 ```bash
 mvn package
@@ -66,6 +66,9 @@ On large input files with a unique ID, it is possible to recover from where the 
 ```bash
 java -jar target\NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -r -header -uid -f fnlngeo -i samples\some_idfnlngeo.txt -service gender
 ```
+## Understanding output
+Please read and contribute to the WIKI
+https://github.com/namsor/namsor-tools-v2/wiki/NamSor-Tools-V2
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
