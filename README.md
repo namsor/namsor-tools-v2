@@ -8,6 +8,7 @@ Please install https://github.com/namsor/namsor-java-sdk2 first, then use Maven 
 ```bash
 mvn package
 ```
+NB: we use Unix conventions for file paths, ex. samples/some_fnln.txt but on MS Windows that would be samples\some_fnln.txt
 
 ## Usage
 
@@ -44,19 +45,19 @@ usage: NamSorTools -apiKey <apiKey> [-countryIso2 <countryIso2>] [-e
 To append gender to a list of first and last names : John|Smith
 
 ```bash
-java -jar target\NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -f fnln -i samples\some_fnln.txt -service gender
+java -jar target/NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -f fnln -i samples/some_fnln.txt -service gender
 ```
 
 To append origin to a list of first and last names : John|Smith
 
 ```bash
-java -jar target\NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -f fnln -i samples\some_fnln.txt -service origin
+java -jar target/NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -f fnln -i samples/some_fnln.txt -service origin
 ```
 
 To parse names into first and last name components (John Smith or Smith, John -> John|Smith)
 
 ```bash
-java -jar target\NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -f name -i samples\some_name.txt -service parse
+java -jar target/NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -f name -i samples/some_name.txt -service parse
 ```
 
 The recommended input format is to specify a unique ID and a geographic context (if known) as a countryIso2 code. 
@@ -64,17 +65,17 @@ The recommended input format is to specify a unique ID and a geographic context 
 To append gender to a list of id, first and last names, geographic context : id12|John|Smith|US
 
 ```bash
-java -jar target\NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -uid -f fnlngeo -i samples\some_idfnlngeo.txt -service gender
+java -jar target/NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -uid -f fnlngeo -i samples/some_idfnlngeo.txt -service gender
 ```
 To parse name into first and last name components, a geographic context is recommended (esp. for Latam names) : id12|John Smith|US
 
 ```bash
-java -jar target\NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -uid -f namegeo -i samples\some_idnamegeo.txt -service parse
+java -jar target/NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -uid -f namegeo -i samples/some_idnamegeo.txt -service parse
 ```
 On large input files with a unique ID, it is possible to recover from where the process crashed and append to the existint output file, for example :
 
 ```bash
-java -jar target\NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -r -header -uid -f fnlngeo -i samples\some_idfnlngeo.txt -service gender
+java -jar target/NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -r -header -uid -f fnlngeo -i samples/some_idfnlngeo.txt -service gender
 ```
 ## Understanding output
 Please read and contribute to the WIKI
