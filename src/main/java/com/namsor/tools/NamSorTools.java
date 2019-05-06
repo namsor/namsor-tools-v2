@@ -637,7 +637,7 @@ public class NamSorTools {
                 Map<String, FirstLastNameGenderedOut> genders = processGenderFullGeo(new ArrayList(personalNamesGeoIn.values()));
                 append(writer, outputHeaders, personalNamesGeoIn, genders);
             }
-            firstLastNamesIn.clear();
+            personalNamesGeoIn.clear();
         }
     }
 
