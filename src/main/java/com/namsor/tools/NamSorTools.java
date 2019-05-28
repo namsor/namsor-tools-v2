@@ -103,11 +103,11 @@ public class NamSorTools {
         SERVICE_NAME_USRACEETHNICITY
     };
 
-    private static final String[] OUTPUT_DATA_PARSE_HEADER = {"firstNameParsed", "lastNameParsed", "nameParserType", "nameParserTypeAlt", "nameParserTypeScore"};
-    private static final String[] OUTPUT_DATA_GENDER_HEADER = {"likelyGender", "likelyGenderScore", "genderScale"};
-    private static final String[] OUTPUT_DATA_ORIGIN_HEADER = {"countryOrigin", "countryOriginAlt", "countryOriginScore"};
-    private static final String[] OUTPUT_DATA_DIASPORA_HEADER = {"ethnicity", "ethnicityAlt", "ethnicityScore"};
-    private static final String[] OUTPUT_DATA_USRACEETHNICITY_HEADER = {"raceEthnicity", "raceEthnicityAlt", "raceEthnicityScore"};
+    private static final String[] OUTPUT_DATA_PARSE_HEADER = {"firstNameParsed", "lastNameParsed", "nameParserType", "nameParserTypeAlt", "nameParserTypeScore","script"};
+    private static final String[] OUTPUT_DATA_GENDER_HEADER = {"likelyGender", "likelyGenderScore", "genderScale","script"};
+    private static final String[] OUTPUT_DATA_ORIGIN_HEADER = {"countryOrigin", "countryOriginAlt", "countryOriginScore","script"};
+    private static final String[] OUTPUT_DATA_DIASPORA_HEADER = {"ethnicity", "ethnicityAlt", "ethnicityScore","script"};
+    private static final String[] OUTPUT_DATA_USRACEETHNICITY_HEADER = {"raceEthnicity", "raceEthnicityAlt", "raceEthnicityScore","script"};
     private static final String[][] OUTPUT_DATA_HEADERS = {
         OUTPUT_DATA_PARSE_HEADER,
         OUTPUT_DATA_GENDER_HEADER,
@@ -140,6 +140,18 @@ public class NamSorTools {
         withUID = commandLineOptions.hasOption("uid");
         recover = commandLineOptions.hasOption("recover");
 
+    }
+
+    public static String computeScriptFirst(String someString) {
+        for (int i = 0; i < someString.length(); i++) {
+            Character c = someString.charAt(i);
+            String script = Character.UnicodeScript.of(c).name();
+            if (script.equals(Character.UnicodeScript.COMMON.name())) {
+                continue;
+            }
+            return script;
+        }
+        return null;
     }
 
     public static void main(String[] args) {
@@ -181,7 +193,7 @@ public class NamSorTools {
                     .longOpt("overwrite")
                     .required(false)
                     .build();
-
+            
             Option outputFileRecover = Option.builder("r").argName("recover")
                     .hasArg(false)
                     .desc("continue from a job (requires uid)")
@@ -405,7 +417,7 @@ public class NamSorTools {
                 }
                 String[] lineData = line.split("\\|");
                 if (lineData.length != dataLenExpected) {
-                    throw new NamSorToolException("Line " + lineId + ", expected input with format : " + dataFormatExpected.toString()+" line = "+line);
+                    throw new NamSorToolException("Line " + lineId + ", expected input with format : " + dataFormatExpected.toString() + " line = " + line);
                 }
                 String uid = null;
                 int col = 0;
@@ -670,25 +682,31 @@ public class NamSorTools {
                 }
             } else if (outputObj instanceof FirstLastNameGenderedOut) {
                 FirstLastNameGenderedOut firstLastNameGenderedOut = (FirstLastNameGenderedOut) outputObj;
-                writer.append(firstLastNameGenderedOut.getLikelyGender().getValue() + separatorOut + firstLastNameGenderedOut.getScore() + separatorOut + firstLastNameGenderedOut.getGenderScale() + separatorOut);
+                String scriptName = NamSorTools.computeScriptFirst(firstLastNameGenderedOut.getLastName());
+                writer.append(firstLastNameGenderedOut.getLikelyGender().getValue() + separatorOut + firstLastNameGenderedOut.getScore() + separatorOut + firstLastNameGenderedOut.getGenderScale() + separatorOut + scriptName + separatorOut);
             } else if (outputObj instanceof FirstLastNameOriginedOut) {
                 FirstLastNameOriginedOut firstLastNameOriginedOut = (FirstLastNameOriginedOut) outputObj;
-                writer.append(firstLastNameOriginedOut.getCountryOrigin() + separatorOut + firstLastNameOriginedOut.getCountryOriginAlt() + separatorOut + firstLastNameOriginedOut.getScore() + separatorOut);
+                String scriptName = NamSorTools.computeScriptFirst(firstLastNameOriginedOut.getLastName());
+                writer.append(firstLastNameOriginedOut.getCountryOrigin() + separatorOut + firstLastNameOriginedOut.getCountryOriginAlt() + separatorOut + firstLastNameOriginedOut.getScore() + separatorOut + scriptName + separatorOut);
             } else if (outputObj instanceof FirstLastNameDiasporaedOut) {
                 FirstLastNameDiasporaedOut firstLastNameDiasporaedOut = (FirstLastNameDiasporaedOut) outputObj;
-                writer.append(firstLastNameDiasporaedOut.getEthnicity() + separatorOut + firstLastNameDiasporaedOut.getEthnicityAlt() + separatorOut + firstLastNameDiasporaedOut.getScore() + separatorOut);
+                String scriptName = NamSorTools.computeScriptFirst(firstLastNameDiasporaedOut.getLastName());
+                writer.append(firstLastNameDiasporaedOut.getEthnicity() + separatorOut + firstLastNameDiasporaedOut.getEthnicityAlt() + separatorOut + firstLastNameDiasporaedOut.getScore() + separatorOut + scriptName + separatorOut);
             } else if (outputObj instanceof FirstLastNameUSRaceEthnicityOut) {
                 FirstLastNameUSRaceEthnicityOut firstLastNameUSRaceEthnicityOut = (FirstLastNameUSRaceEthnicityOut) outputObj;
-                writer.append(firstLastNameUSRaceEthnicityOut.getRaceEthnicity() + separatorOut + firstLastNameUSRaceEthnicityOut.getRaceEthnicityAlt() + separatorOut + firstLastNameUSRaceEthnicityOut.getScore() + separatorOut);
+                String scriptName = NamSorTools.computeScriptFirst(firstLastNameUSRaceEthnicityOut.getLastName());
+                writer.append(firstLastNameUSRaceEthnicityOut.getRaceEthnicity() + separatorOut + firstLastNameUSRaceEthnicityOut.getRaceEthnicityAlt() + separatorOut + firstLastNameUSRaceEthnicityOut.getScore() + separatorOut + scriptName + separatorOut);
             } else if (outputObj instanceof PersonalNameGenderedOut) {
                 PersonalNameGenderedOut personalNameGenderedOut = (PersonalNameGenderedOut) outputObj;
-                writer.append(personalNameGenderedOut.getLikelyGender().getValue() + separatorOut + personalNameGenderedOut.getScore() + separatorOut + personalNameGenderedOut.getGenderScale() + separatorOut);
+                String scriptName = NamSorTools.computeScriptFirst(personalNameGenderedOut.getName());
+                writer.append(personalNameGenderedOut.getLikelyGender().getValue() + separatorOut + personalNameGenderedOut.getScore() + separatorOut + personalNameGenderedOut.getGenderScale() + separatorOut + scriptName + separatorOut );
             } else if (outputObj instanceof PersonalNameParsedOut) {
                 PersonalNameParsedOut personalNameParsedOut = (PersonalNameParsedOut) outputObj;
                 //  {"firstNameParsed", "lastNameParsed", "nameParserType", "nameParserTypeAlt", "nameParserTypeScore"};
-                String firstNameParsed = (personalNameParsedOut.getFirstLastName()!=null?personalNameParsedOut.getFirstLastName().getFirstName():"");
-                String lastNameParsed = (personalNameParsedOut.getFirstLastName()!=null?personalNameParsedOut.getFirstLastName().getLastName():"");
-                writer.append(firstNameParsed + separatorOut + lastNameParsed+separatorOut+ personalNameParsedOut.getNameParserType()+separatorOut+personalNameParsedOut.getNameParserTypeAlt()+ separatorOut+personalNameParsedOut.getScore() + separatorOut);
+                String firstNameParsed = (personalNameParsedOut.getFirstLastName() != null ? personalNameParsedOut.getFirstLastName().getFirstName() : "");
+                String lastNameParsed = (personalNameParsedOut.getFirstLastName() != null ? personalNameParsedOut.getFirstLastName().getLastName() : "");
+                String scriptName = NamSorTools.computeScriptFirst(personalNameParsedOut.getName());
+                writer.append(firstNameParsed + separatorOut + lastNameParsed + separatorOut + personalNameParsedOut.getNameParserType() + separatorOut + personalNameParsedOut.getNameParserTypeAlt() + separatorOut + personalNameParsedOut.getScore() + separatorOut  + scriptName + separatorOut);
             } else {
                 throw new IllegalArgumentException("Serialization of " + outputObj.getClass().getName() + " not supported");
             }
