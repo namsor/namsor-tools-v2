@@ -5,6 +5,7 @@
  */
 package com.namsor.tools;
 
+import com.namsor.sdk2.api.AdminApi;
 import com.namsor.sdk2.api.PersonalApi;
 import com.namsor.sdk2.invoke.ApiClient;
 import com.namsor.sdk2.invoke.ApiException;
@@ -103,11 +104,11 @@ public class NamSorTools {
         SERVICE_NAME_USRACEETHNICITY
     };
 
-    private static final String[] OUTPUT_DATA_PARSE_HEADER = {"firstNameParsed", "lastNameParsed", "nameParserType", "nameParserTypeAlt", "nameParserTypeScore","script"};
-    private static final String[] OUTPUT_DATA_GENDER_HEADER = {"likelyGender", "likelyGenderScore", "genderScale","script"};
-    private static final String[] OUTPUT_DATA_ORIGIN_HEADER = {"countryOrigin", "countryOriginAlt", "countryOriginScore","script"};
-    private static final String[] OUTPUT_DATA_DIASPORA_HEADER = {"ethnicity", "ethnicityAlt", "ethnicityScore","script"};
-    private static final String[] OUTPUT_DATA_USRACEETHNICITY_HEADER = {"raceEthnicity", "raceEthnicityAlt", "raceEthnicityScore","script"};
+    private static final String[] OUTPUT_DATA_PARSE_HEADER = {"firstNameParsed", "lastNameParsed", "nameParserType", "nameParserTypeAlt", "nameParserTypeScore", "script"};
+    private static final String[] OUTPUT_DATA_GENDER_HEADER = {"likelyGender", "likelyGenderScore", "genderScale", "script"};
+    private static final String[] OUTPUT_DATA_ORIGIN_HEADER = {"countryOrigin", "countryOriginAlt", "countryOriginScore", "script"};
+    private static final String[] OUTPUT_DATA_DIASPORA_HEADER = {"ethnicity", "ethnicityAlt", "ethnicityScore", "script"};
+    private static final String[] OUTPUT_DATA_USRACEETHNICITY_HEADER = {"raceEthnicity", "raceEthnicityAlt", "raceEthnicityScore", "script"};
     private static final String[][] OUTPUT_DATA_HEADERS = {
         OUTPUT_DATA_PARSE_HEADER,
         OUTPUT_DATA_GENDER_HEADER,
@@ -118,6 +119,7 @@ public class NamSorTools {
 
     private final CommandLine commandLineOptions;
     private final PersonalApi api;
+    private final AdminApi adminApi;
     private final int TIMEOUT = 30000;
     private final boolean withUID;
     private final boolean recover;
@@ -136,6 +138,7 @@ public class NamSorTools {
         //client.setDebugging(false);
         //client.setBasePath("http://localhost:8080/NamSorAPIv2");
         api = new PersonalApi(client);
+        adminApi = new AdminApi(client);
 
         withUID = commandLineOptions.hasOption("uid");
         recover = commandLineOptions.hasOption("recover");
@@ -193,7 +196,7 @@ public class NamSorTools {
                     .longOpt("overwrite")
                     .required(false)
                     .build();
-            
+
             Option outputFileRecover = Option.builder("r").argName("recover")
                     .hasArg(false)
                     .desc("continue from a job (requires uid)")
@@ -290,6 +293,15 @@ public class NamSorTools {
         if (apiKey == null || apiKey.isEmpty()) {
             throw new NamSorToolException("Missing API KEY");
         }
+        String softwareNameAndVersion = null;
+        try {
+            // get the software version
+             softwareNameAndVersion = adminApi.softwareVersion().getSoftwareNameAndVersion();
+        } catch (ApiException ex) {
+            Logger.getLogger(NamSorTools.class.getName()).log(Level.SEVERE, null, ex);
+            throw new NamSorToolException("Can't get the API version "+ex.getMessage());
+        }
+
         BufferedReader reader = null;
         Writer writer = null;
         try {
@@ -349,8 +361,7 @@ public class NamSorTools {
             }
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile), encoding));
             writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile, isRecover()), encoding));
-
-            process(service, reader, writer);
+            process(service, reader, writer, softwareNameAndVersion);
         } catch (IOException ex) {
             Logger.getLogger(NamSorTools.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ApiException ex) {
@@ -369,7 +380,7 @@ public class NamSorTools {
         }
     }
 
-    private void process(String service, BufferedReader reader, Writer writer) throws IOException, NamSorToolException, ApiException {
+    private void process(String service, BufferedReader reader, Writer writer, String softwareNameAndVersion) throws IOException, NamSorToolException, ApiException {
         int lineId = 0;
         String inputDataFormat = getCommandLineOptions().getOptionValue("inputDataFormat");
         String[] inputHeaders = null;
@@ -468,13 +479,13 @@ public class NamSorTools {
                         personalNameGeoIn.setCountryIso2(countryIso2);
                         personalNamesGeoIn.put(uid, personalNameGeoIn);
                     }
-                    processData(service, outputHeaders, writer, false);
+                    processData(service, outputHeaders, writer, false, softwareNameAndVersion);
                 }
             }
             lineId++;
             line = reader.readLine();
         }
-        processData(service, outputHeaders, writer, true);
+        processData(service, outputHeaders, writer, true, softwareNameAndVersion);
         writer.flush();
     }
 
@@ -489,6 +500,7 @@ public class NamSorTools {
         for (String outputHeader : outputHeaders) {
             writer.append(outputHeader + separatorOut);
         }
+        writer.append("version" + separatorOut);
         writer.append("rowId" + "\n");
         writer.flush();
     }
@@ -604,56 +616,56 @@ public class NamSorTools {
         return result;
     }
 
-    private void processData(String service, String[] outputHeaders, Writer writer, boolean flushBuffers) throws ApiException, IOException {
+    private void processData(String service, String[] outputHeaders, Writer writer, boolean flushBuffers, String softwareNameAndVersion) throws ApiException, IOException {
         if (flushBuffers && !firstLastNamesIn.isEmpty() || firstLastNamesIn.size() >= BATCH_SIZE) {
             if (service.equals(SERVICE_NAME_ORIGIN)) {
                 Map<String, FirstLastNameOriginedOut> origins = processOrigin(new ArrayList(firstLastNamesIn.values()));
-                append(writer, outputHeaders, firstLastNamesIn, origins);
+                append(writer, outputHeaders, firstLastNamesIn, origins,softwareNameAndVersion);
             } else if (service.equals(SERVICE_NAME_GENDER)) {
                 Map<String, FirstLastNameGenderedOut> genders = processGender(new ArrayList(firstLastNamesIn.values()));
-                append(writer, outputHeaders, firstLastNamesIn, genders);
+                append(writer, outputHeaders, firstLastNamesIn, genders,softwareNameAndVersion);
             }
             firstLastNamesIn.clear();
         }
         if (flushBuffers && !firstLastNamesGeoIn.isEmpty() || firstLastNamesGeoIn.size() >= BATCH_SIZE) {
             if (service.equals(SERVICE_NAME_ORIGIN)) {
                 Map<String, FirstLastNameOriginedOut> origins = processOriginGeo(new ArrayList(firstLastNamesGeoIn.values()));
-                append(writer, outputHeaders, firstLastNamesGeoIn, origins);
+                append(writer, outputHeaders, firstLastNamesGeoIn, origins,softwareNameAndVersion);
             } else if (service.equals(SERVICE_NAME_GENDER)) {
                 Map<String, FirstLastNameGenderedOut> genders = processGenderGeo(new ArrayList(firstLastNamesGeoIn.values()));
-                append(writer, outputHeaders, firstLastNamesGeoIn, genders);
+                append(writer, outputHeaders, firstLastNamesGeoIn, genders,softwareNameAndVersion);
             } else if (service.equals(SERVICE_NAME_DIASPORA)) {
                 Map<String, FirstLastNameDiasporaedOut> diasporas = processDiaspora(new ArrayList(firstLastNamesGeoIn.values()));
-                append(writer, outputHeaders, firstLastNamesGeoIn, diasporas);
+                append(writer, outputHeaders, firstLastNamesGeoIn, diasporas,softwareNameAndVersion);
             } else if (service.equals(SERVICE_NAME_USRACEETHNICITY)) {
                 Map<String, FirstLastNameUSRaceEthnicityOut> usRaceEthnicities = processUSRaceEthnicity(new ArrayList(firstLastNamesGeoIn.values()));
-                append(writer, outputHeaders, firstLastNamesGeoIn, usRaceEthnicities);
+                append(writer, outputHeaders, firstLastNamesGeoIn, usRaceEthnicities,softwareNameAndVersion);
             }
             firstLastNamesGeoIn.clear();
         }
         if (flushBuffers && !personalNamesIn.isEmpty() || personalNamesIn.size() >= BATCH_SIZE) {
             if (service.equals(SERVICE_NAME_PARSE)) {
                 Map<String, PersonalNameParsedOut> parseds = processParse(new ArrayList(personalNamesIn.values()));
-                append(writer, outputHeaders, personalNamesIn, parseds);
+                append(writer, outputHeaders, personalNamesIn, parseds,softwareNameAndVersion);
             } else if (service.equals(SERVICE_NAME_GENDER)) {
                 Map<String, FirstLastNameGenderedOut> genders = processGenderFull(new ArrayList(personalNamesIn.values()));
-                append(writer, outputHeaders, personalNamesIn, genders);
+                append(writer, outputHeaders, personalNamesIn, genders,softwareNameAndVersion);
             }
-            firstLastNamesIn.clear();
+            personalNamesIn.clear();
         }
         if (flushBuffers && !personalNamesGeoIn.isEmpty() || personalNamesGeoIn.size() >= BATCH_SIZE) {
             if (service.equals(SERVICE_NAME_PARSE)) {
                 Map<String, PersonalNameParsedOut> parseds = processParseGeo(new ArrayList(personalNamesGeoIn.values()));
-                append(writer, outputHeaders, personalNamesGeoIn, parseds);
+                append(writer, outputHeaders, personalNamesGeoIn, parseds,softwareNameAndVersion);
             } else if (service.equals(SERVICE_NAME_GENDER)) {
                 Map<String, FirstLastNameGenderedOut> genders = processGenderFullGeo(new ArrayList(personalNamesGeoIn.values()));
-                append(writer, outputHeaders, personalNamesGeoIn, genders);
+                append(writer, outputHeaders, personalNamesGeoIn, genders,softwareNameAndVersion);
             }
             personalNamesGeoIn.clear();
         }
     }
 
-    private void append(Writer writer, String[] outputHeaders, Map input, Map output) throws IOException {
+    private void append(Writer writer, String[] outputHeaders, Map input, Map output, String softwareNameAndVersion) throws IOException {
         Set<String> flushedUID = new HashSet();
         for (Object idObj : input.keySet()) {
             String uid = (String) idObj;
@@ -699,17 +711,18 @@ public class NamSorTools {
             } else if (outputObj instanceof PersonalNameGenderedOut) {
                 PersonalNameGenderedOut personalNameGenderedOut = (PersonalNameGenderedOut) outputObj;
                 String scriptName = NamSorTools.computeScriptFirst(personalNameGenderedOut.getName());
-                writer.append(personalNameGenderedOut.getLikelyGender().getValue() + separatorOut + personalNameGenderedOut.getScore() + separatorOut + personalNameGenderedOut.getGenderScale() + separatorOut + scriptName + separatorOut );
+                writer.append(personalNameGenderedOut.getLikelyGender().getValue() + separatorOut + personalNameGenderedOut.getScore() + separatorOut + personalNameGenderedOut.getGenderScale() + separatorOut + scriptName + separatorOut);
             } else if (outputObj instanceof PersonalNameParsedOut) {
                 PersonalNameParsedOut personalNameParsedOut = (PersonalNameParsedOut) outputObj;
                 //  {"firstNameParsed", "lastNameParsed", "nameParserType", "nameParserTypeAlt", "nameParserTypeScore"};
                 String firstNameParsed = (personalNameParsedOut.getFirstLastName() != null ? personalNameParsedOut.getFirstLastName().getFirstName() : "");
                 String lastNameParsed = (personalNameParsedOut.getFirstLastName() != null ? personalNameParsedOut.getFirstLastName().getLastName() : "");
                 String scriptName = NamSorTools.computeScriptFirst(personalNameParsedOut.getName());
-                writer.append(firstNameParsed + separatorOut + lastNameParsed + separatorOut + personalNameParsedOut.getNameParserType() + separatorOut + personalNameParsedOut.getNameParserTypeAlt() + separatorOut + personalNameParsedOut.getScore() + separatorOut  + scriptName + separatorOut);
+                writer.append(firstNameParsed + separatorOut + lastNameParsed + separatorOut + personalNameParsedOut.getNameParserType() + separatorOut + personalNameParsedOut.getNameParserTypeAlt() + separatorOut + personalNameParsedOut.getScore() + separatorOut + scriptName + separatorOut);
             } else {
                 throw new IllegalArgumentException("Serialization of " + outputObj.getClass().getName() + " not supported");
             }
+            writer.append(softwareNameAndVersion + separatorOut);
             writer.append((rowId++) + "\n");
         }
         writer.flush();
