@@ -15,11 +15,12 @@ NB: we use Unix conventions for file paths, ex. samples/some_fnln.txt but on MS 
 ```bash
 java -jar target/NamSorToolsV2-1.0-SNAPSHOT.jar
 
-usage: NamSorTools -apiKey <apiKey> [-countryIso2 <countryIso2>] [-e
-       <encoding>] -f <inputDataFormat> [-h] [-header] -i <inputFile> [-o
-       <outputFile>] [-r] -service <service> [-uid] [-w]
+usage: NamSorTools -apiKey <apiKey> [-countryIso2 <countryIso2>] [-digest]
+       [-e <encoding>] -f <inputDataFormat> [-h] [-header] -i <inputFile>
+       [-o <outputFile>] [-r] -service <service> [-uid] [-w]
  -apiKey,--apiKey <apiKey>                  NamSor API Key
  -countryIso2,--countryIso2 <countryIso2>   countryIso2 default
+ -digest,--digest                           SHA-256 digest names in output
  -e,--encoding <encoding>                   encoding : UTF-8 by default
  -f,--inputDataFormat <inputDataFormat>     input data format : first
                                             name, last name (fnln) / first
@@ -77,6 +78,10 @@ On large input files with a unique ID, it is possible to recover from where the 
 ```bash
 java -jar target/NamSorToolsV2-1.0-SNAPSHOT.jar -apiKey <yourAPIKey> -r -header -uid -f fnlngeo -i samples/some_idfnlngeo.txt -service gender
 ```
+## Anonymizing output data
+The -digest option will digest personal names in file outpus, using a non reversible MD-5 hash. For example, John Smith will become 6117323d2cabbc17d44c2b44587f682c.
+Please note that this doesn't apply to the PARSE output. 
+
 ## Understanding output
 Please read and contribute to the WIKI
 https://github.com/namsor/namsor-tools-v2/wiki/NamSor-Tools-V2
