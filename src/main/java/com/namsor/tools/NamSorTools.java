@@ -174,7 +174,7 @@ public class NamSorTools {
     }
 
     public String digest(String inClear) {
-        if (getDigest() == null) {
+        if (getDigest() == null || inClear == null || inClear.isEmpty() ) {
             return inClear;
         } else {
             final byte[] hashbytes = getDigest().digest(
