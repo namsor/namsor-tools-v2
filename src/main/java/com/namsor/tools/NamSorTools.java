@@ -366,7 +366,7 @@ public class NamSorTools {
             }
             String outputFileName = getCommandLineOptions().getOptionValue("outputFile");
             if (outputFileName == null || outputFileName.isEmpty()) {
-                outputFileName = inputFileName + "." + service + ".namsor";
+                outputFileName = inputFileName + "." + service + (digest!=null?".digest":"") + ".namsor";
                 Logger.getLogger(getClass().getName()).info("Outputing to " + outputFileName);
             }
             File outputFile = new File(outputFileName);
