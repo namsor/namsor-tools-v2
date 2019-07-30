@@ -110,7 +110,7 @@ public class NamSorTools {
     };
 
     private static final String[] OUTPUT_DATA_PARSE_HEADER = {"firstNameParsed", "lastNameParsed", "nameParserType", "nameParserTypeAlt", "nameParserTypeScore", "script"};
-    private static final String[] OUTPUT_DATA_GENDER_HEADER = {"likelyGender", "likelyGenderScore", "genderScale", "script"};
+    private static final String[] OUTPUT_DATA_GENDER_HEADER = {"likelyGender", "likelyGenderScore", "probabilityCalibrated", "genderScale", "script"};
     private static final String[] OUTPUT_DATA_ORIGIN_HEADER = {"countryOrigin", "countryOriginAlt", "countryOriginScore", "script"};
     private static final String[] OUTPUT_DATA_DIASPORA_HEADER = {"ethnicity", "ethnicityAlt", "ethnicityScore", "script"};
     private static final String[] OUTPUT_DATA_USRACEETHNICITY_HEADER = {"raceEthnicity", "raceEthnicityAlt", "raceEthnicityScore", "script"};
@@ -745,7 +745,7 @@ public class NamSorTools {
             } else if (outputObj instanceof FirstLastNameGenderedOut) {
                 FirstLastNameGenderedOut firstLastNameGenderedOut = (FirstLastNameGenderedOut) outputObj;
                 String scriptName = NamSorTools.computeScriptFirst(firstLastNameGenderedOut.getLastName());
-                writer.append(firstLastNameGenderedOut.getLikelyGender().getValue() + separatorOut + firstLastNameGenderedOut.getScore() + separatorOut + firstLastNameGenderedOut.getGenderScale() + separatorOut + scriptName + separatorOut);
+                writer.append(firstLastNameGenderedOut.getLikelyGender().getValue() + separatorOut + firstLastNameGenderedOut.getScore() + separatorOut + firstLastNameGenderedOut.getProbabilityCalibrated() + separatorOut + firstLastNameGenderedOut.getGenderScale() + separatorOut + scriptName + separatorOut);
             } else if (outputObj instanceof FirstLastNameOriginedOut) {
                 FirstLastNameOriginedOut firstLastNameOriginedOut = (FirstLastNameOriginedOut) outputObj;
                 String scriptName = NamSorTools.computeScriptFirst(firstLastNameOriginedOut.getLastName());
