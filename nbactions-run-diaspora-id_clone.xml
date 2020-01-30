@@ -10,7 +10,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xmx12500m -classpath %classpath com.namsor.tools.NamSorTools -apiKey ed051bf58dcda88ee57ddfe6feddde9d -r -uid -header -f fnlngeo -i D:\Projects\georgia\companiesHouse\persons-with-significant-control-snapshot-2019-05-14_idfnlngeo.txt -service gender</exec.args>
+                <exec.args>-Xmx12500m -classpath %classpath com.namsor.tools.NamSorTools -apiKey e77eee3fd16f82751912d27cdbacf7ec -w -header -uid -f fnln -i "D:\Sync\Dropbox\0_NamSor_SAS\NamSor_com\NamSor SAS\10_clients\HEC.CA\20200108_HEC_ca_idfnln.txt" -service country</exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
         </action>
@@ -24,7 +24,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -Xmx12500m -classpath %classpath com.namsor.tools.NamSorTools -apiKey ed051bf58dcda88ee57ddfe6feddde9d -r -uid -header -f fnlngeo -i D:\Projects\georgia\companiesHouse\persons-with-significant-control-snapshot-2019-05-14_idfnlngeo.txt -service gender</exec.args>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -Xmx12500m -classpath %classpath com.namsor.tools.NamSorTools -apiKey e77eee3fd16f82751912d27cdbacf7ec -w -header -uid -f fnln -i "D:\Sync\Dropbox\0_NamSor_SAS\NamSor_com\NamSor SAS\10_clients\HEC.CA\20200108_HEC_ca_idfnln.txt" -service country</exec.args>
                 <jpda.listen>true</jpda.listen>
                 <exec.executable>java</exec.executable>
             </properties>
@@ -39,7 +39,50 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xmx12500m -classpath %classpath com.namsor.tools.NamSorTools -apiKey ed051bf58dcda88ee57ddfe6feddde9d -r -uid -header -f fnlngeo -i D:\Projects\georgia\companiesHouse\persons-with-significant-control-snapshot-2019-05-14_idfnlngeo.txt -service gender</exec.args>
+                <exec.args>-Xmx12500m -classpath %classpath com.namsor.tools.NamSorTools -apiKey e77eee3fd16f82751912d27cdbacf7ec -w -header -uid -f fnln -i "D:\Sync\Dropbox\0_NamSor_SAS\NamSor_com\NamSor SAS\10_clients\HEC.CA\20200108_HEC_ca_idfnln.txt" -service country</exec.args>
+                <exec.executable>java</exec.executable>
+            </properties>
+        </action>
+        <action>
+            <actionName>run</actionName>
+            <packagings>
+                <packaging>jar</packaging>
+            </packagings>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>-Xmx12500m -classpath %classpath com.namsor.tools.NamSorTools -apiKey e77eee3fd16f82751912d27cdbacf7ec -w -header -uid -f fnln -i "D:\Sync\Dropbox\0_NamSor_SAS\NamSor_com\NamSor SAS\10_clients\HEC.CA\20200108_HEC_ca_idfnln.txt" -service country</exec.args>
+                <exec.executable>java</exec.executable>
+            </properties>
+        </action>
+        <action>
+            <actionName>debug</actionName>
+            <packagings>
+                <packaging>jar</packaging>
+            </packagings>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -Xmx12500m -classpath %classpath com.namsor.tools.NamSorTools -apiKey e77eee3fd16f82751912d27cdbacf7ec -w -header -uid -f fnln -i "D:\Sync\Dropbox\0_NamSor_SAS\NamSor_com\NamSor SAS\10_clients\HEC.CA\20200108_HEC_ca_idfnln.txt" -service country</exec.args>
+                <jpda.listen>true</jpda.listen>
+                <exec.executable>java</exec.executable>
+            </properties>
+        </action>
+        <action>
+            <actionName>profile</actionName>
+            <packagings>
+                <packaging>jar</packaging>
+            </packagings>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>-Xmx12500m -classpath %classpath com.namsor.tools.NamSorTools -apiKey e77eee3fd16f82751912d27cdbacf7ec -w -header -uid -f fnln -i "D:\Sync\Dropbox\0_NamSor_SAS\NamSor_com\NamSor SAS\10_clients\HEC.CA\20200108_HEC_ca_idfnln.txt" -service country</exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
         </action>

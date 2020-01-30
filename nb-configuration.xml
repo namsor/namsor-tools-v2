@@ -10,6 +10,7 @@ Without this configuration present, some functionality in the IDE may be limited
         <configurations>
             <configuration id="run-diaspora-id" profiles=""/>
             <configuration id="run-diaspora-id_clone" profiles=""/>
+            <configuration id="run-diaspora-id_clone" profiles="run-country-idfnln"/>
         </configurations>
     </config-data>
 </project-shared-configuration>
