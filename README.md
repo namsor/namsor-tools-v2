@@ -35,7 +35,7 @@ usage: NamSorTools -apiKey <apiKey> [-countryIso2 <countryIso2>] [-digest]
  -r,--recover                               continue from a job (requires
                                             uid)
  -service,--endpoint <service>              service : parse / gender /
-                                            origin / diaspora /
+                                            origin / country / diaspora /
                                             usraceethnicity
  -uid,--uid                                 input data has an ID prefix
  -w,--overwrite                             overwrite existing output file
