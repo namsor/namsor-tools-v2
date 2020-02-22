@@ -219,7 +219,7 @@ public class NamSorTools {
 
             Option basePath = Option.builder("basePath").argName("basePath")
                     .hasArg()
-                    .desc("Base Path")
+                    .desc("Base Path, ex. https://v2.namsor.com/NamSorAPIv2")
                     .longOpt("basePath")
                     .required(false)
                     .build();
