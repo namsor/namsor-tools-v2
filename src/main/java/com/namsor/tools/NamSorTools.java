@@ -147,8 +147,12 @@ public class NamSorTools {
         client.setReadTimeout(TIMEOUT);
         client.setWriteTimeout(TIMEOUT);
         client.setApiKey(apiKey);
+        String basePath = commandLineOptions.getOptionValue("basePath");
+        if (basePath != null && ! basePath.isEmpty()) {
+            Logger.getLogger(NamSorTools.class.getName()).info("Overriding basePath="+basePath);
+            client.setBasePath(basePath);
+        }        
         //client.setDebugging(false);
-        //client.setBasePath("http://localhost:8080/NamSorAPIv2");
         api = new PersonalApi(client);
         adminApi = new AdminApi(client);
 
@@ -213,6 +217,13 @@ public class NamSorTools {
                     .required()
                     .build();
 
+            Option basePath = Option.builder("basePath").argName("basePath")
+                    .hasArg()
+                    .desc("Base Path")
+                    .longOpt("basePath")
+                    .required(false)
+                    .build();
+            
             Option inputFile = Option.builder("i").argName("inputFile")
                     .hasArg()
                     .desc("input file name")
@@ -298,6 +309,7 @@ public class NamSorTools {
 
             Options options = new Options();
             options.addOption(apiKey);
+            options.addOption(basePath);
             options.addOption(inputFile);
             options.addOption(inputDataHasId);
             options.addOption(inputDataFormat);
