@@ -15,10 +15,14 @@ NB: we use Unix conventions for file paths, ex. samples/some_fnln.txt but on MS 
 ```bash
 java -jar target/NamSorToolsV2-1.0-SNAPSHOT.jar
 
-usage: NamSorTools -apiKey <apiKey> [-countryIso2 <countryIso2>] [-digest]
-       [-e <encoding>] -f <inputDataFormat> [-h] [-header] -i <inputFile>
-       [-o <outputFile>] [-r] -service <service> [-uid] [-w]
+usage: NamSorTools -apiKey <apiKey> [-basePath <basePath>] [-countryIso2
+       <countryIso2>] [-digest] [-e <encoding>] -f <inputDataFormat> [-h]
+       [-header] -i <inputFile> [-o <outputFile>] [-r] -service <service>
+       [-uid] [-w]
  -apiKey,--apiKey <apiKey>                  NamSor API Key
+ -basePath,--basePath <basePath>            Base Path, ex.
+                                            https://v2.namsor.com/NamSorAP
+                                            Iv2
  -countryIso2,--countryIso2 <countryIso2>   countryIso2 default
  -digest,--digest                           SHA-256 digest names in output
  -e,--encoding <encoding>                   encoding : UTF-8 by default
