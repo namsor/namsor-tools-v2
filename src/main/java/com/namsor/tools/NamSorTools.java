@@ -133,6 +133,7 @@ public class NamSorTools {
     private final int TIMEOUT = 30000;
     private final boolean withUID;
     private final boolean recover;
+    private final boolean skipErrors;
     private final MessageDigest digest;
 
     public NamSorTools(CommandLine commandLineOptions) {
@@ -158,6 +159,7 @@ public class NamSorTools {
 
         withUID = commandLineOptions.hasOption("uid");
         recover = commandLineOptions.hasOption("recover");
+        skipErrors = commandLineOptions.hasOption("skip");
 
         MessageDigest digest_ = null;
         if (commandLineOptions.hasOption("digest")) {
@@ -259,6 +261,13 @@ public class NamSorTools {
                     .required(false)
                     .build();
 
+            Option skipErrors = Option.builder("s").argName("skip")
+                    .hasArg(false)
+                    .desc("skip errors")
+                    .longOpt("skip")
+                    .required(false)
+                    .build();
+                        
             Option inputDataFormat = Option.builder("f").argName("inputDataFormat")
                     .hasArg()
                     .desc("input data format : first name, last name (fnln) / first name, last name, geo country iso2 (fnlngeo) / full name (name) / full name, geo country iso2 (namegeo) ")
@@ -316,6 +325,7 @@ public class NamSorTools {
             options.addOption(outputFile);
             options.addOption(outputHeader);
             options.addOption(service);
+            options.addOption(skipErrors);
             options.addOption(encoding);
             options.addOption(outputFileOverwrite);
             options.addOption(countryIso2);
@@ -495,7 +505,14 @@ public class NamSorTools {
                 }
                 String[] lineData = line.split("\\|");
                 if (lineData.length != dataLenExpected) {
-                    throw new NamSorToolException("Line " + lineId + ", expected input with format : " + dataFormatExpected.toString() + " line = " + line);
+                    if( skipErrors ) {
+                        Logger.getLogger(getClass().getName()).warning("Line " + lineId + ", expected input with format : " + dataFormatExpected.toString() + " line = " + line);
+                        lineId++;
+                        line = reader.readLine();
+                        continue;
+                    } else {
+                        throw new NamSorToolException("Line " + lineId + ", expected input with format : " + dataFormatExpected.toString() + " line = " + line);
+                    }
                 }
                 String uid = null;
                 int col = 0;
