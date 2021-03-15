@@ -14,7 +14,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>namsor-sdk2</artifactId>
-            <version>2.0.11</version>
+            <version>2.0.11B</version>
         </dependency>
     </dependencies>
     <build>
