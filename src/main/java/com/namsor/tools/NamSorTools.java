@@ -171,11 +171,17 @@ public class NamSorTools {
         if (apiKey == null || apiKey.isEmpty()) {
             throw new IllegalStateException("Missing API KEY");
         }
+
         ApiClient client = new ApiClient();
         client.setConnectTimeout(TIMEOUT);
         client.setReadTimeout(TIMEOUT);
         client.setWriteTimeout(TIMEOUT);
         client.setApiKey(apiKey);
+        String usraceethnicityoption = commandLineOptions.getOptionValue("usraceethnicityoption");
+        if (usraceethnicityoption != null && !usraceethnicityoption.isEmpty()) {
+            Logger.getLogger(NamSorTools.class.getName()).info("Overriding usraceethnicityoption=" + usraceethnicityoption);
+            client.addDefaultHeader(NAMSOR_OPTION_USRACEETHNICITY_TAXO, usraceethnicityoption);
+        }        
         String basePath = commandLineOptions.getOptionValue("basePath");
         if (basePath != null && !basePath.isEmpty()) {
             Logger.getLogger(NamSorTools.class.getName()).info("Overriding basePath=" + basePath);
@@ -237,6 +243,10 @@ public class NamSorTools {
         }
         return null;
     }*/
+    public static final String NAMSOR_OPTION_USRACEETHNICITY_TAXO = "X-OPTION-USRACEETHNICITY-TAXONOMY";    
+    public static final String NAMSOR_OPTION_USRACEETHNICITY_TAXO_4CLASSES = "USRACEETHNICITY-4CLASSES";
+    public static final String NAMSOR_OPTION_USRACEETHNICITY_TAXO_4CLASSESCLASSIC = "USRACEETHNICITY-4CLASSES-CLASSIC";
+    public static final String NAMSOR_OPTION_USRACEETHNICITY_TAXO_6CLASSES = "USRACEETHNICITY-6CLASSES";
 
     public static void main(String[] args) {
         // create the parser
@@ -332,6 +342,12 @@ public class NamSorTools {
                     .longOpt("help")
                     .required(false)
                     .build();
+            Option usraceethnicityoption = Option.builder("usraceethnicityoption").argName("usraceethnicityoption")
+                                .hasArg(true)
+                                .desc("extra usraceethnicity option "+NAMSOR_OPTION_USRACEETHNICITY_TAXO_4CLASSES+" "+NAMSOR_OPTION_USRACEETHNICITY_TAXO_4CLASSESCLASSIC+" "+NAMSOR_OPTION_USRACEETHNICITY_TAXO_6CLASSES)
+                                .longOpt("usraceethnicityoption")
+                                .required(false)
+                                .build();
 
             Option service = Option.builder("service").argName("service")
                     .hasArg(true)
@@ -362,6 +378,7 @@ public class NamSorTools {
             options.addOption(countryIso2);
             options.addOption(outputFileRecover);
             options.addOption(digest);
+            options.addOption(usraceethnicityoption);
             options.addOption(help);
 
             Options helpOptions = new Options();
@@ -943,7 +960,7 @@ public class NamSorTools {
             } else if (outputObj instanceof PersonalNameGenderedOut) {
                 PersonalNameGenderedOut personalNameGenderedOut = (PersonalNameGenderedOut) outputObj;
                 String scriptName = personalNameGenderedOut.getScript();//NamSorTools.computeScriptFirst(personalNameGenderedOut.getName());
-                writer.append(personalNameGenderedOut.getLikelyGender().getValue() + separatorOut + personalNameGenderedOut.getScore() + separatorOut + personalNameGenderedOut.getGenderScale() + separatorOut + scriptName + separatorOut);
+                writer.append(personalNameGenderedOut.getLikelyGender().getValue() + separatorOut + personalNameGenderedOut.getScore() + separatorOut + personalNameGenderedOut.getProbabilityCalibrated() + separatorOut + personalNameGenderedOut.getGenderScale() + separatorOut + scriptName + separatorOut);
             } else if (outputObj instanceof PersonalNameGeoOut) {
                 PersonalNameGeoOut personalNameGeoOut = (PersonalNameGeoOut) outputObj;
                 String scriptName = personalNameGeoOut.getScript();//NamSorTools.computeScriptFirst(personalNameGeoOut.getName());
