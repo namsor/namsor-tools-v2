@@ -15,7 +15,7 @@ NB: we use Unix conventions for file paths, ex. samples/some_fnln.txt but on MS 
 usage: NamSorTools -apiKey <apiKey> [-basePath <basePath>] [-countryIso2
        <countryIso2>] [-digest] [-e <encoding>] -f <inputDataFormat> [-h]
        [-header] -i <inputFile> [-o <outputFile>] [-r] [-s] -service
-       <service> [-uid] [-w]
+       <service> [-uid] [-w] [-usraceethnicityoption <usraceethnicityoption>]
  -apiKey,--apiKey <apiKey>                  NamSor API Key
  -basePath,--basePath <basePath>            Base Path, ex.
                                             https://v2.namsor.com/NamSorAP
@@ -38,9 +38,13 @@ usage: NamSorTools -apiKey <apiKey> [-basePath <basePath>] [-countryIso2
  -s,--skip                                  skip errors
  -service,--endpoint <service>              service : parse / gender /
                                             origin / country / diaspora /
-                                            usraceethnicity
+                                            usraceethnicity / phoneCode /
+                                            subclassification
  -uid,--uid                                 input data has an ID prefix
  -w,--overwrite                             overwrite existing output file
+  -usraceethnicityoption,--usraceethnicityoption <usraceethnicityoption>
+ extra usraceethnicity option USRACEETHNICITY-4CLASSES
+ USRACEETHNICITY-4CLASSES-CLASSIC USRACEETHNICITY-6CLASSES
 ```
 
 ## Examples
