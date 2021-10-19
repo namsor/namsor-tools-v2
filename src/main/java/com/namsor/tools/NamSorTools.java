@@ -357,7 +357,7 @@ public class NamSorTools {
 
             Option service = Option.builder("service").argName("service")
                     .hasArg(true)
-                    .desc("service : parse / gender / origin / country / diaspora / usraceethnicity / phoneCode")
+                    .desc("service : parse / gender / origin / country / diaspora / usraceethnicity / phoneCode / subclassification")
                     .longOpt("endpoint")
                     .required(true)
                     .build();
