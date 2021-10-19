@@ -14,6 +14,7 @@ import com.namsor.sdk2.invoke.ApiException;
 import com.namsor.sdk2.model.BatchFirstLastNameDiasporaedOut;
 import com.namsor.sdk2.model.BatchFirstLastNameGenderedOut;
 import com.namsor.sdk2.model.BatchFirstLastNameGeoIn;
+import com.namsor.sdk2.model.BatchFirstLastNameGeoSubclassificationOut;
 import com.namsor.sdk2.model.BatchFirstLastNameIn;
 import com.namsor.sdk2.model.BatchFirstLastNameOriginedOut;
 import com.namsor.sdk2.model.BatchFirstLastNamePhoneCodedOut;
@@ -30,6 +31,7 @@ import com.namsor.sdk2.model.BatchProperNounCategorizedOut;
 import com.namsor.sdk2.model.FirstLastNameDiasporaedOut;
 import com.namsor.sdk2.model.FirstLastNameGenderedOut;
 import com.namsor.sdk2.model.FirstLastNameGeoIn;
+import com.namsor.sdk2.model.FirstLastNameGeoSubclassificationOut;
 import com.namsor.sdk2.model.FirstLastNameIn;
 import com.namsor.sdk2.model.FirstLastNameOriginedOut;
 import com.namsor.sdk2.model.FirstLastNamePhoneCodedOut;
@@ -118,6 +120,7 @@ public class NamSorTools {
     private static final String SERVICE_NAME_DIASPORA = "diaspora";
     private static final String SERVICE_NAME_PHONECODE = "phonecode";
     private static final String SERVICE_NAME_USRACEETHNICITY = "usraceethnicity";
+    private static final String SERVICE_NAME_SUBCLASSIFICATION = "subclassification";
 
     private static final String[] SERVICES = {
         SERVICE_NAME_PARSE,
@@ -127,7 +130,8 @@ public class NamSorTools {
         SERVICE_NAME_TYPE,
         SERVICE_NAME_DIASPORA,
         SERVICE_NAME_USRACEETHNICITY,
-        SERVICE_NAME_PHONECODE
+        SERVICE_NAME_PHONECODE,
+        SERVICE_NAME_SUBCLASSIFICATION
     };
 
   
@@ -136,9 +140,10 @@ public class NamSorTools {
     private static final String[] OUTPUT_DATA_ORIGIN_HEADER = {"region","topRegion","subRegion","countryOrigin", "countryOriginAlt", "probabilityCalibrated", "probabilityCalibratedAlt", "countryOriginScore", "countryOriginTop", "script"};
     private static final String[] OUTPUT_DATA_COUNTRY_HEADER = {"region","topRegion","subRegion","country", "countryAlt", "probabilityCalibrated", "probabilityCalibratedAlt", "countryScore", "countryTop", "script"};
     private static final String[] OUTPUT_DATA_TYPE_HEADER = {"commonType", "commonTypeAlt", "commonTypeScore", "commonTypeTop", "script"};
-    private static final String[] OUTPUT_DATA_DIASPORA_HEADER = {"ethnicity", "ethnicityAlt", "ethnicityScore", "ethnicityTop", "script"};
-    private static final String[] OUTPUT_DATA_USRACEETHNICITY_HEADER = {"raceEthnicity", "raceEthnicityAlt", "probabilityCalibrated", "probabilityCalibratedAlt", "raceEthnicityScore", "raceEthnicity", "script"};
+    private static final String[] OUTPUT_DATA_DIASPORA_HEADER = {"ethnicity", "ethnicityAlt",  "probabilityCalibrated", "probabilityCalibratedAlt", "ethnicityScore", "ethnicityTop", "script"};
+    private static final String[] OUTPUT_DATA_USRACEETHNICITY_HEADER = {"raceEthnicity", "raceEthnicityAlt", "probabilityCalibrated", "probabilityCalibratedAlt", "raceEthnicityScore", "raceEthnicityTop", "script"};
     private static final String[] OUTPUT_DATA_PHONECODE_HEADER = {"internationalPhoneNumberVerified", "phoneCountryIso2Verified", "phoneCountryCode", "phoneCountryCodeAlt", "phoneCountryIso2", "phoneCountryIso2Alt", "originCountryIso2", "originCountryIso2Alt", "verified", "score", "script"};
+    private static final String[] OUTPUT_DATA_SUBCLASSIFICATION_HEADER = {"subClassification", "subClassificationAlt", "probabilityCalibrated", "probabilityCalibratedAlt", "subclassificationScore", "subclassificationTop", "script"};
 
     private static final String[][] OUTPUT_DATA_HEADERS = {
         OUTPUT_DATA_PARSE_HEADER,
@@ -148,7 +153,8 @@ public class NamSorTools {
         OUTPUT_DATA_TYPE_HEADER,
         OUTPUT_DATA_DIASPORA_HEADER,
         OUTPUT_DATA_USRACEETHNICITY_HEADER,
-        OUTPUT_DATA_PHONECODE_HEADER
+        OUTPUT_DATA_PHONECODE_HEADER,
+        OUTPUT_DATA_SUBCLASSIFICATION_HEADER
     };
 
     private final CommandLine commandLineOptions;
@@ -648,6 +654,17 @@ public class NamSorTools {
         writer.flush();
     }
 
+    private Map<String, FirstLastNameGeoSubclassificationOut> processSubclassification(List<FirstLastNameGeoIn> names) throws ApiException, IOException {
+        Map<String, FirstLastNameGeoSubclassificationOut> result = new HashMap();
+        BatchFirstLastNameGeoIn body = new BatchFirstLastNameGeoIn();
+        body.setPersonalNames(names);
+        BatchFirstLastNameGeoSubclassificationOut origined = personalApi.subclassificationBatch(body);
+        for (FirstLastNameGeoSubclassificationOut personalName : origined.getPersonalNames()) {
+            result.put(personalName.getId(), personalName);
+        }
+        return result;
+    }
+    
     private Map<String, FirstLastNameDiasporaedOut> processDiaspora(List<FirstLastNameGeoIn> names) throws ApiException, IOException {
         Map<String, FirstLastNameDiasporaedOut> result = new HashMap();
         BatchFirstLastNameGeoIn body = new BatchFirstLastNameGeoIn();
@@ -876,6 +893,9 @@ public class NamSorTools {
             } else if (service.equals(SERVICE_NAME_USRACEETHNICITY)) {
                 Map<String, FirstLastNameUSRaceEthnicityOut> usRaceEthnicities = processUSRaceEthnicity(new ArrayList(firstLastNamesGeoIn.values()));
                 append(writer, outputHeaders, firstLastNamesGeoIn, usRaceEthnicities, softwareNameAndVersion);
+            } else if (service.equals(SERVICE_NAME_SUBCLASSIFICATION)) {
+                Map<String, FirstLastNameGeoSubclassificationOut> subclassifications = processSubclassification(new ArrayList(firstLastNamesGeoIn.values()));
+                append(writer, outputHeaders, firstLastNamesGeoIn, subclassifications, softwareNameAndVersion);
             }
             firstLastNamesGeoIn.clear();
         }
@@ -974,11 +994,15 @@ public class NamSorTools {
             } else if (outputObj instanceof FirstLastNameDiasporaedOut) {
                 FirstLastNameDiasporaedOut firstLastNameDiasporaedOut = (FirstLastNameDiasporaedOut) outputObj;
                 String scriptName = firstLastNameDiasporaedOut.getScript();//NamSorTools.computeScriptFirst(firstLastNameDiasporaedOut.getLastName());
-                writer.append(firstLastNameDiasporaedOut.getEthnicity() + separatorOut + firstLastNameDiasporaedOut.getEthnicityAlt() + separatorOut + firstLastNameDiasporaedOut.getScore() + separatorOut + toCSV(firstLastNameDiasporaedOut.getEthnicitiesTop()) + separatorOut + scriptName + separatorOut);
+                writer.append(firstLastNameDiasporaedOut.getEthnicity() + separatorOut + firstLastNameDiasporaedOut.getEthnicityAlt() + separatorOut + firstLastNameDiasporaedOut.getProbabilityCalibrated() + separatorOut + firstLastNameDiasporaedOut.getProbabilityAltCalibrated() + separatorOut + firstLastNameDiasporaedOut.getScore() + separatorOut + toCSV(firstLastNameDiasporaedOut.getEthnicitiesTop()) + separatorOut + scriptName + separatorOut);
+            } else if (outputObj instanceof FirstLastNameGeoSubclassificationOut) {
+                FirstLastNameGeoSubclassificationOut firstLastNameGeoSubclassificationOut = (FirstLastNameGeoSubclassificationOut) outputObj;
+                String scriptName = firstLastNameGeoSubclassificationOut.getScript();//NamSorTools.computeScriptFirst(firstLastNameDiasporaedOut.getLastName());
+                writer.append(firstLastNameGeoSubclassificationOut.getSubClassification() + separatorOut + firstLastNameGeoSubclassificationOut.getSubClassificationAlt() + separatorOut + firstLastNameGeoSubclassificationOut.getProbabilityCalibrated() + separatorOut + firstLastNameGeoSubclassificationOut.getProbabilityAltCalibrated()  + separatorOut + firstLastNameGeoSubclassificationOut.getScore() + separatorOut + toCSV(firstLastNameGeoSubclassificationOut.getSubclassificationTop()) + separatorOut + scriptName + separatorOut);
             } else if (outputObj instanceof FirstLastNameUSRaceEthnicityOut) {
                 FirstLastNameUSRaceEthnicityOut firstLastNameUSRaceEthnicityOut = (FirstLastNameUSRaceEthnicityOut) outputObj;
                 String scriptName = firstLastNameUSRaceEthnicityOut.getScript();//NamSorTools.computeScriptFirst(firstLastNameUSRaceEthnicityOut.getLastName());
-                writer.append(firstLastNameUSRaceEthnicityOut.getRaceEthnicity() + separatorOut + firstLastNameUSRaceEthnicityOut.getRaceEthnicityAlt() + separatorOut + firstLastNameUSRaceEthnicityOut.getProbabilityCalibrated() + separatorOut + firstLastNameUSRaceEthnicityOut.getProbabilityAltCalibrated() + separatorOut + firstLastNameUSRaceEthnicityOut.getScore() + separatorOut + toCSV(firstLastNameUSRaceEthnicityOut.getRaceEthnicitiesTop()) + separatorOut + scriptName + separatorOut);
+                writer.append(firstLastNameUSRaceEthnicityOut.getRaceEthnicity() + separatorOut + firstLastNameUSRaceEthnicityOut.getRaceEthnicityAlt() + separatorOut + separatorOut + firstLastNameUSRaceEthnicityOut.getScore() + separatorOut + toCSV(firstLastNameUSRaceEthnicityOut.getRaceEthnicitiesTop()) + separatorOut + scriptName + separatorOut);
             } else if (outputObj instanceof PersonalNameGenderedOut) {
                 PersonalNameGenderedOut personalNameGenderedOut = (PersonalNameGenderedOut) outputObj;
                 String scriptName = personalNameGenderedOut.getScript();//NamSorTools.computeScriptFirst(personalNameGenderedOut.getName());
