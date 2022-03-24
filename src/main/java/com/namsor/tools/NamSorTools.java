@@ -1002,7 +1002,7 @@ public class NamSorTools {
             } else if (outputObj instanceof FirstLastNameUSRaceEthnicityOut) {
                 FirstLastNameUSRaceEthnicityOut firstLastNameUSRaceEthnicityOut = (FirstLastNameUSRaceEthnicityOut) outputObj;
                 String scriptName = firstLastNameUSRaceEthnicityOut.getScript();//NamSorTools.computeScriptFirst(firstLastNameUSRaceEthnicityOut.getLastName());
-                writer.append(firstLastNameUSRaceEthnicityOut.getRaceEthnicity() + separatorOut + firstLastNameUSRaceEthnicityOut.getRaceEthnicityAlt() + separatorOut  + firstLastNameUSRaceEthnicityOut.getProbabilityCalibrated() + separatorOut + firstLastNameUSRaceEthnicityOut.getScore() + separatorOut + toCSV(firstLastNameUSRaceEthnicityOut.getRaceEthnicitiesTop()) + separatorOut + scriptName + separatorOut);
+                writer.append(firstLastNameUSRaceEthnicityOut.getRaceEthnicity() + separatorOut + firstLastNameUSRaceEthnicityOut.getRaceEthnicityAlt() + separatorOut  + firstLastNameUSRaceEthnicityOut.getProbabilityCalibrated() + separatorOut + firstLastNameUSRaceEthnicityOut.getProbabilityAltCalibrated() + separatorOut + firstLastNameUSRaceEthnicityOut.getScore() + separatorOut + toCSV(firstLastNameUSRaceEthnicityOut.getRaceEthnicitiesTop()) + separatorOut + scriptName + separatorOut);
             } else if (outputObj instanceof PersonalNameGenderedOut) {
                 PersonalNameGenderedOut personalNameGenderedOut = (PersonalNameGenderedOut) outputObj;
                 String scriptName = personalNameGenderedOut.getScript();//NamSorTools.computeScriptFirst(personalNameGenderedOut.getName());
