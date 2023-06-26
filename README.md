@@ -64,17 +64,24 @@ usage: NamSorTools -apiKey <apiKey> [-basePath <basePath>] [-countryIso2
 
 ## Examples
 
-To append gender to a list of first and last names : John|Smith
+To append the likely name gender to a list of first and last names : John|Smith
 
 ```bash
 java -jar target/NamSorToolsV2-0.26-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -f fnln -i samples/some_fnln.txt -service gender
 ```
 
-To append origin to a list of first and last names : John|Smith
+To append the likely name origin to a list of first and last names : John|Smith
 
 ```bash
 java -jar target/NamSorToolsV2-0.26-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -f fnln -i samples/some_fnln.txt -service origin
 ```
+
+To append the likely country of residence to a list of full names : John Smith
+
+```bash
+java -jar target/NamSorToolsV2-0.26-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -f name -i samples/some_name.txt -service country
+```
+
 
 To parse names into first and last name components (John Smith or Smith, John -> John|Smith)
 
@@ -89,6 +96,13 @@ To append gender to a list of id, first and last names, geographic context : id1
 ```bash
 java -jar target/NamSorToolsV2-0.26-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -uid -f fnlngeo -i samples/some_idfnlngeo.txt -service gender
 ```
+
+To append the ethnicity (in the sense of cultural heritage / country of origin of ascendents) from a list of id, first and last names, geographic context : id12|John|Smith|US
+
+```bash
+java -jar target/NamSorToolsV2-0.26-SNAPSHOT.jar -apiKey <yourAPIKey> -w -header -uid -f fnlngeo -i samples/some_idfnlngeo.txt -service diaspora
+```
+
 To parse name into first and last name components, a geographic context is recommended (esp. for Latam names) : id12|John Smith|US
 
 ```bash
@@ -99,6 +113,25 @@ On large input files with a unique ID, it is possible to recover from where the 
 ```bash
 java -jar target/NamSorToolsV2-0.26-SNAPSHOT.jar -apiKey <yourAPIKey> -r -header -uid -f fnlngeo -i samples/some_idfnlngeo.txt -service gender
 ```
+
+For Indian names (for now), you can infer the likely india state or union territory (ie. a subdivision of the country as per ISO 3166-2:IN)
+
+```bash
+java -jar target/NamSorToolsV2-0.26-SNAPSHOT.jar -apiKey <yourAPIKey>  -r -header -uid -f fnlngeo -i samples/some_indian_idfnlngeo.txt -service subdivision
+```
+
+For Indian names (for now), you can infer the likely religion (provided the IN country code and state/union territory as per ISO 3166-2:IN)
+
+```bash
+java -jar target/NamSorToolsV2-0.26-SNAPSHOT.jar -apiKey <yourAPIKey>  -r -header -uid -f namegeosub -i samples/some_indian_idnamegeosub.txt -service religion
+```
+
+For Indian names (for now), you can infer the likely caste group (provided the IN country code and state/union territory as per ISO 3166-2:IN)
+
+```bash
+java -jar target/NamSorToolsV2-0.26-SNAPSHOT.jar -apiKey <yourAPIKey>  -r -header -uid -f namegeosub -i samples/some_indian_idnamegeosub.txt -service castegroup
+```
+
 
 ## Anonymizing output data
 The -digest option will digest personal names in file outpus, using a non reversible MD-5 hash. For example, John Smith will become 6117323d2cabbc17d44c2b44587f682c.
