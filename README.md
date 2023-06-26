@@ -1,5 +1,5 @@
 # namsor-tools-v2
-NamSor command line tools, to append gender, origin, diaspora or us 'race'/ethnicity to a CSV file. The CSV file should in UTF-8 encoding, pipe-| demimited. It can be very large. 
+NamSor command line tools, to append gender, origin, diaspora or us 'race'/ethnicity to a CSV file. The CSV file should in UTF-8 encoding, pipe-| demimited. It can be very large. Check out also the Python CLT (https://github.com/namsor/namsor-python-tools-v2)
 
 ## Installation
 
