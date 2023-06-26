@@ -12,39 +12,91 @@ NB: we use Unix conventions for file paths, ex. samples/some_fnln.txt but on MS 
 ## Usage
 
 ```bash
+java -jar target/NamSorToolsV2-0.26-SNAPSHOT.jar
 usage: NamSorTools -apiKey <apiKey> [-basePath <basePath>] [-countryIso2
        <countryIso2>] [-digest] [-e <encoding>] -f <inputDataFormat> [-h]
-       [-header] -i <inputFile> [-o <outputFile>] [-r] [-s] -service
-       <service> [-uid] [-w] [-usraceethnicityoption <usraceethnicityoption>]
- -apiKey,--apiKey <apiKey>                  NamSor API Key
- -basePath,--basePath <basePath>            Base Path, ex.
-                                            https://v2.namsor.com/NamSorAP
-                                            Iv2
- -countryIso2,--countryIso2 <countryIso2>   countryIso2 default
- -digest,--digest                           SHA-256 digest names in output
- -e,--encoding <encoding>                   encoding : UTF-8 by default
- -f,--inputDataFormat <inputDataFormat>     input data format : first
-                                            name, last name (fnln) / first
-                                            name, last name, geo country
-                                            iso2 (fnlngeo) / full name
-                                            (name) / full name, geo
-                                            country iso2 (namegeo)
- -h,--help                                  get help
- -header,--header                           output header
- -i,--inputFile <inputFile>                 input file name
- -o,--outputFile <outputFile>               output file name
- -r,--recover                               continue from a job (requires
-                                            uid)
- -s,--skip                                  skip errors
- -service,--endpoint <service>              service : parse / gender /
-                                            origin / country / diaspora /
-                                            usraceethnicity / phoneCode /
-                                            subclassification
- -uid,--uid                                 input data has an ID prefix
- -w,--overwrite                             overwrite existing output file
-  -usraceethnicityoption,--usraceethnicityoption <usraceethnicityoption>
+       [-header] -i <inputFile> [-o <outputFile>] [-r] [-religionoption]
+       [-s] -service <service> [-uid] [-usraceethnicityoption
+       <usraceethnicityoption>] [-w]
+       
+
+   
+               -apiKey,--apiKey <apiKey>
+		 NamSor API Key
+
+		 -basePath,--basePath <basePath>
+		 Base Path, ex. https://v2.namsor.com/NamSorAPIv2
+
+		 -countryIso2,--countryIso2 <countryIso2>
+		 countryIso2 default
+
+		 -digest,--digest
+		 SHA-256 digest names in output
+
+		 -e,--encoding <encoding>
+		 encoding : UTF-8 by default
+
+		 -f,--inputDataFormat <inputDataFormat>
+		 input data format : first name, last name (fnln) / first name, last name,
+		 geo country iso2 (fnlngeo) / full name (name) / full name, geo country
+		 iso2 (namegeo) / full name, geo country iso2, country subdivision
+		 (namegeosub)
+
+		 -h,--help
+		 get help
+
+		 -header,--header
+		 output header
+
+		 -i,--inputFile <inputFile>
+		 input file name
+
+		 -o,--outputFile <outputFile>
+		 output file name
+
+		 -r,--recover
+		 continue from a job (requires uid)
+
+		 -religionoption,--religionoption
+		 extra religion stats option X-OPTION-RELIGION-STATS for country / origin
+		 / diaspora
+
+		 -s,--skip
+		 skip errors
+
+		 -service,--endpoint <service>
+		 service : parse / gender / origin / country / diaspora / usraceethnicity
+		 / phoneCode / subclassification / religion / castegroup
+
+		 -uid,--uid
+		 input data has an ID prefix
+
+		 -usraceethnicityoption,--usraceethnicityoption <usraceethnicityoption>
+		 extra usraceethnicity option USRACEETHNICITY-4CLASSES
+		 USRACEETHNICITY-4CLASSES-CLASSIC USRACEETHNICITY-6CLASSES
+
+		 -w,--overwrite
+		 overwrite existing output file
+ -religionoption,--religionoption
+ extra religion stats option X-OPTION-RELIGION-STATS for country / origin
+ / diaspora
+
+ -s,--skip
+ skip errors
+
+ -service,--endpoint <service>
+ service : parse / gender / origin / country / diaspora / usraceethnicity
+ / phoneCode / subclassification / religion / castegroup
+
+ -uid,--uid
+ input data has an ID prefix
+
+ -usraceethnicityoption,--usraceethnicityoption <usraceethnicityoption>
  extra usraceethnicity option USRACEETHNICITY-4CLASSES
  USRACEETHNICITY-4CLASSES-CLASSIC USRACEETHNICITY-6CLASSES
+
+ -w,--overwrite
+ overwrite existing output file
 ```
 
 ## Examples
