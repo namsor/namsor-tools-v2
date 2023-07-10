@@ -404,7 +404,7 @@ public class NamSorTools {
             
             Option service = Option.builder("service").argName("service")
                     .hasArg(true)
-                    .desc("service : parse / gender / origin / country / diaspora / usraceethnicity / phoneCode / subclassification / religion / castegroup")
+                    .desc("service : parse / gender / origin / country / diaspora / usraceethnicity / phoneCode / subdivision / religion / castegroup")
                     .longOpt("endpoint")
                     .required(true)
                     .build();
