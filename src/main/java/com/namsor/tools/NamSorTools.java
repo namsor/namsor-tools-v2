@@ -17,6 +17,7 @@ import com.namsor.sdk2.model.BatchFirstLastNameCastegroupOut;
 import com.namsor.sdk2.model.BatchFirstLastNameDiasporaedOut;
 import com.namsor.sdk2.model.BatchFirstLastNameGenderedOut;
 import com.namsor.sdk2.model.BatchFirstLastNameGeoIn;
+import com.namsor.sdk2.model.BatchFirstLastNameGeoOut;
 import com.namsor.sdk2.model.BatchFirstLastNameGeoSubclassificationOut;
 import com.namsor.sdk2.model.BatchFirstLastNameGeoSubdivisionIn;
 import com.namsor.sdk2.model.BatchFirstLastNameIn;
@@ -29,12 +30,14 @@ import com.namsor.sdk2.model.BatchFirstLastNameUSRaceEthnicityOut;
 import com.namsor.sdk2.model.BatchNameGeoIn;
 import com.namsor.sdk2.model.BatchNameIn;
 import com.namsor.sdk2.model.BatchPersonalNameCastegroupOut;
+import com.namsor.sdk2.model.BatchPersonalNameDiasporaedOut;
 import com.namsor.sdk2.model.BatchPersonalNameGenderedOut;
 import com.namsor.sdk2.model.BatchPersonalNameGeoIn;
 import com.namsor.sdk2.model.BatchPersonalNameGeoOut;
 import com.namsor.sdk2.model.BatchPersonalNameGeoSubclassificationOut;
 import com.namsor.sdk2.model.BatchPersonalNameGeoSubdivisionIn;
 import com.namsor.sdk2.model.BatchPersonalNameIn;
+import com.namsor.sdk2.model.BatchPersonalNameOriginedOut;
 import com.namsor.sdk2.model.BatchPersonalNameParsedOut;
 import com.namsor.sdk2.model.BatchPersonalNameReligionedOut;
 import com.namsor.sdk2.model.BatchPersonalNameSubdivisionIn;
@@ -44,6 +47,7 @@ import com.namsor.sdk2.model.FirstLastNameCastegroupOut;
 import com.namsor.sdk2.model.FirstLastNameDiasporaedOut;
 import com.namsor.sdk2.model.FirstLastNameGenderedOut;
 import com.namsor.sdk2.model.FirstLastNameGeoIn;
+import com.namsor.sdk2.model.FirstLastNameGeoOut;
 import com.namsor.sdk2.model.FirstLastNameGeoSubclassificationOut;
 import com.namsor.sdk2.model.FirstLastNameGeoSubdivisionIn;
 import com.namsor.sdk2.model.FirstLastNameIn;
@@ -56,12 +60,14 @@ import com.namsor.sdk2.model.FirstLastNameUSRaceEthnicityOut;
 import com.namsor.sdk2.model.NameGeoIn;
 import com.namsor.sdk2.model.NameIn;
 import com.namsor.sdk2.model.PersonalNameCastegroupOut;
+import com.namsor.sdk2.model.PersonalNameDiasporaedOut;
 import com.namsor.sdk2.model.PersonalNameGenderedOut;
 import com.namsor.sdk2.model.PersonalNameGeoIn;
 import com.namsor.sdk2.model.PersonalNameGeoOut;
 import com.namsor.sdk2.model.PersonalNameGeoSubclassificationOut;
 import com.namsor.sdk2.model.PersonalNameGeoSubdivisionIn;
 import com.namsor.sdk2.model.PersonalNameIn;
+import com.namsor.sdk2.model.PersonalNameOriginedOut;
 import com.namsor.sdk2.model.PersonalNameParsedOut;
 import com.namsor.sdk2.model.PersonalNameReligionedOut;
 import com.namsor.sdk2.model.PersonalNameSubdivisionIn;
@@ -788,16 +794,19 @@ public class NamSorTools {
         return result;
     }
 
-    private Map<String, FirstLastNameOriginedOut> processOriginGeo(List<FirstLastNameGeoIn> names) throws ApiException, IOException {
-        List<FirstLastNameIn> namesNoGeo = new ArrayList();
-        for (FirstLastNameGeoIn name : names) {
-            FirstLastNameIn nameNoGeo = new FirstLastNameIn();
-            nameNoGeo.setId(name.getId());
-            nameNoGeo.setFirstName(name.getFirstName());
-            nameNoGeo.setLastName(name.getLastName());
-            namesNoGeo.add(nameNoGeo);
+    private Map<String, PersonalNameDiasporaedOut> processDiasporaFull(List<PersonalNameGeoIn> names) throws ApiException, IOException {
+        Map<String, PersonalNameDiasporaedOut> result = new HashMap();
+        BatchPersonalNameGeoIn body = new BatchPersonalNameGeoIn();
+        body.setPersonalNames(names);
+        BatchPersonalNameDiasporaedOut origined = personalApi.diasporaFullBatch(body);
+        for (PersonalNameDiasporaedOut personalName : origined.getPersonalNames()) {
+            result.put(personalName.getId(), personalName);
         }
-        return processOrigin(namesNoGeo);
+        return result;
+    }
+    
+    private Map<String, FirstLastNameOriginedOut> processOriginGeo(List<FirstLastNameGeoIn> names) throws ApiException, IOException {
+        return processOrigin(fnLnGeoToNoGeo(names));
     }
 
     private Map<String, FirstLastNameOriginedOut> processOrigin(List<FirstLastNameIn> names) throws ApiException, IOException {
@@ -811,6 +820,21 @@ public class NamSorTools {
         return result;
     }
 
+    private Map<String, PersonalNameOriginedOut> processOriginFullGeo(List<PersonalNameGeoIn> names) throws ApiException, IOException {
+        return processOriginFull(nameGeoToNoGeo(names));
+    }
+
+    private Map<String, PersonalNameOriginedOut> processOriginFull(List<PersonalNameIn> names) throws ApiException, IOException {
+        Map<String, PersonalNameOriginedOut> result = new HashMap();
+        BatchPersonalNameIn body = new BatchPersonalNameIn();
+        body.setPersonalNames(names);
+        BatchPersonalNameOriginedOut origined = personalApi.originFullBatch(body);
+        for (PersonalNameOriginedOut personalName : origined.getPersonalNames()) {
+            result.put(personalName.getId(), personalName);
+        }
+        return result;
+    }
+    
     private Map<String, FirstLastNameGenderedOut> processGender(List<FirstLastNameIn> names) throws ApiException, IOException {
         Map<String, FirstLastNameGenderedOut> result = new HashMap();
         BatchFirstLastNameIn body = new BatchFirstLastNameIn();
@@ -844,22 +868,47 @@ public class NamSorTools {
         return result;
     }
 
-    private Map<String, PersonalNameGeoOut> processCountryGeo(List<PersonalNameGeoIn> names) throws ApiException, IOException {
-        Map<String, PersonalNameGeoOut> result = new HashMap();
-        BatchPersonalNameIn body = new BatchPersonalNameIn();
-        List<PersonalNameIn> names_ = new ArrayList();
-        for (PersonalNameGeoIn name : names) {
-            PersonalNameIn noGeo = new PersonalNameIn();
-            noGeo.setId(name.getId());
-            noGeo.setName(name.getName());
-            names_.add(noGeo);
-        }
-        body.setPersonalNames(names_);
-        BatchPersonalNameGeoOut countried = personalApi.countryBatch(body);
-        for (PersonalNameGeoOut personalName : countried.getPersonalNames()) {
+    private Map<String, FirstLastNameGeoOut> processCountryFnLn(List<FirstLastNameIn> names) throws ApiException, IOException {
+        Map<String, FirstLastNameGeoOut> result = new HashMap();
+        BatchFirstLastNameIn body = new BatchFirstLastNameIn();
+        body.setPersonalNames(names);
+        BatchFirstLastNameGeoOut countried = personalApi.countryFnLnBatch(body);
+        for (FirstLastNameGeoOut personalName : countried.getPersonalNames()) {
             result.put(personalName.getId(), personalName);
         }
         return result;
+    }
+
+    private static List<FirstLastNameIn> fnLnGeoToNoGeo(List<FirstLastNameGeoIn> names) {
+        List<FirstLastNameIn> namesNoGeo = new ArrayList();
+        for (FirstLastNameGeoIn name : names) {
+            FirstLastNameIn nameNoGeo = new FirstLastNameIn();
+            nameNoGeo.setId(name.getId());
+            nameNoGeo.setFirstName(name.getFirstName());
+            nameNoGeo.setLastName(name.getLastName());
+            namesNoGeo.add(nameNoGeo);
+        }
+        return namesNoGeo;
+    }
+
+    
+    private Map<String, FirstLastNameGeoOut> processCountryFnLnGeo(List<FirstLastNameGeoIn> names) throws ApiException, IOException {
+        return processCountryFnLn(fnLnGeoToNoGeo(names));
+    }
+    
+    private static final List<PersonalNameIn> nameGeoToNoGeo(List<PersonalNameGeoIn> names) {
+        List<PersonalNameIn> namesNoGeo = new ArrayList();
+        for (PersonalNameGeoIn name : names) {
+            PersonalNameIn nameNoGeo = new PersonalNameIn();
+            nameNoGeo.setId(name.getId());
+            nameNoGeo.setName(name.getName());
+            namesNoGeo.add(nameNoGeo);
+        }
+        return namesNoGeo;
+    }
+    
+    private Map<String, PersonalNameGeoOut> processCountryGeo(List<PersonalNameGeoIn> names) throws ApiException, IOException {        
+        return processCountry(nameGeoToNoGeo(names));
     }
     
     private Map<String, PersonalNameReligionedOut> processReligionFull(List<PersonalNameGeoSubdivisionIn> names) throws ApiException, IOException {
@@ -978,17 +1027,7 @@ public class NamSorTools {
         return result;
     }
     
-        
-    private Map<String, PersonalNameGeoOut> processCountryAdapted(List<FirstLastNameIn> names_) throws ApiException, IOException {
-        List<PersonalNameIn> names = new ArrayList();
-        for (FirstLastNameIn name : names_) {
-            PersonalNameIn adapted = new PersonalNameIn();
-            adapted.setId(name.getId());
-            adapted.setName(name.getFirstName() + " " + name.getLastName());
-            names.add(adapted);
-        }
-        return processCountry(names);
-    }
+       
 
     private Map<String, PersonalNameGenderedOut> processGenderFullGeo(List<PersonalNameGeoIn> names) throws ApiException, IOException {
         Map<String, PersonalNameGenderedOut> result = new HashMap();
@@ -1065,7 +1104,7 @@ public class NamSorTools {
                 Map<String, FirstLastNameGenderedOut> genders = processGender(new ArrayList(firstLastNamesIn.values()));
                 append(writer, outputHeaders, firstLastNamesIn, genders, softwareNameAndVersion);
             } else if (service.equals(SERVICE_NAME_COUNTRY)) {
-                Map<String, PersonalNameGeoOut> countrieds = processCountryAdapted(new ArrayList(firstLastNamesIn.values()));
+                Map<String, FirstLastNameGeoOut> countrieds = processCountryFnLn(new ArrayList(firstLastNamesIn.values()));
                 append(writer, outputHeaders, firstLastNamesIn, countrieds, softwareNameAndVersion);
             }
             firstLastNamesIn.clear();
@@ -1074,6 +1113,9 @@ public class NamSorTools {
             if (service.equals(SERVICE_NAME_ORIGIN)) {
                 Map<String, FirstLastNameOriginedOut> origins = processOriginGeo(new ArrayList(firstLastNamesGeoIn.values()));
                 append(writer, outputHeaders, firstLastNamesGeoIn, origins, softwareNameAndVersion);
+            } else if (service.equals(SERVICE_NAME_COUNTRY)) {
+                Map<String, FirstLastNameGeoOut> countrieds = processCountryFnLnGeo(new ArrayList(firstLastNamesIn.values()));
+                append(writer, outputHeaders, firstLastNamesGeoIn, countrieds, softwareNameAndVersion);
             } else if (service.equals(SERVICE_NAME_GENDER)) {
                 Map<String, FirstLastNameGenderedOut> genders = processGenderGeo(new ArrayList(firstLastNamesGeoIn.values()));
                 append(writer, outputHeaders, firstLastNamesGeoIn, genders, softwareNameAndVersion);
@@ -1099,6 +1141,9 @@ public class NamSorTools {
             } else if (service.equals(SERVICE_NAME_COUNTRY)) {
                 Map<String, PersonalNameGeoOut> countrieds = processCountry(new ArrayList(personalNamesIn.values()));
                 append(writer, outputHeaders, personalNamesIn, countrieds, softwareNameAndVersion);
+            } else if (service.equals(SERVICE_NAME_ORIGIN)) {
+                Map<String, PersonalNameOriginedOut> origins = processOriginFull(new ArrayList(personalNamesIn.values()));
+                append(writer, outputHeaders, personalNamesIn, origins, softwareNameAndVersion);
             } else if (service.equals(SERVICE_NAME_TYPE)) {
                 Map<String, ProperNounCategorizedOut> nameTypeds = processNameType(new ArrayList(personalNamesIn.values()));
                 append(writer, outputHeaders, personalNamesIn, nameTypeds, softwareNameAndVersion);
@@ -1115,6 +1160,12 @@ public class NamSorTools {
             } else if (service.equals(SERVICE_NAME_COUNTRY)) {
                 Map<String, PersonalNameGeoOut> countrieds = processCountryGeo(new ArrayList(personalNamesGeoIn.values()));
                 append(writer, outputHeaders, personalNamesGeoIn, countrieds, softwareNameAndVersion);
+            } else if (service.equals(SERVICE_NAME_ORIGIN)) {
+                Map<String, PersonalNameOriginedOut> origins = processOriginFullGeo(new ArrayList(personalNamesGeoIn.values()));
+                append(writer, outputHeaders, personalNamesGeoIn, origins, softwareNameAndVersion);
+            } else if (service.equals(SERVICE_NAME_DIASPORA)) {
+                Map<String, PersonalNameDiasporaedOut> diasporas = processDiasporaFull(new ArrayList(personalNamesGeoIn.values()));
+                append(writer, outputHeaders, personalNamesGeoIn, diasporas, softwareNameAndVersion);
             } else if (service.equals(SERVICE_NAME_TYPE)) {
                 Map<String, ProperNounCategorizedOut> nameTypeds = processNameTypeGeo(new ArrayList(personalNamesGeoIn.values()));
                 append(writer, outputHeaders, personalNamesGeoIn, nameTypeds, softwareNameAndVersion);
@@ -1193,10 +1244,8 @@ public class NamSorTools {
             } else if (inputObj instanceof FirstLastNamePhoneNumberIn) {
                 FirstLastNamePhoneNumberIn firstLastNamePhoneNumberIn = (FirstLastNamePhoneNumberIn) inputObj;
                 writer.append(digest(firstLastNamePhoneNumberIn.getFirstName()) + separatorOut + digest(firstLastNamePhoneNumberIn.getLastName())+ separatorOut+ digest(firstLastNamePhoneNumberIn.getPhoneNumber())+ separatorOut);
-                //
-
             } else {
-                throw new IllegalArgumentException("Serialization of " + inputObj.getClass().getName() + " not supported");
+                throw new IllegalArgumentException("Serialization of input " + inputObj.getClass().getName() + " not supported");
             }
             if (outputObj == null) {
                 for (String outputHeader : outputHeaders) {
@@ -1214,12 +1263,27 @@ public class NamSorTools {
                 if( religionoption ) {
                     appendReligionStat(writer, firstLastNameOriginedOut.getReligionStats(),firstLastNameOriginedOut.getReligionStatsAlt());
                 }
+            } else if (outputObj instanceof PersonalNameOriginedOut) {
+                PersonalNameOriginedOut personalNameOriginedOut = (PersonalNameOriginedOut) outputObj;
+                String scriptName = personalNameOriginedOut.getScript();//NamSorTools.computeScriptFirst(firstLastNameOriginedOut.getLastName());
+                //"region","topRegion","subRegion"
+                writer.append(personalNameOriginedOut.getRegionOrigin() + separatorOut + personalNameOriginedOut.getTopRegionOrigin() + separatorOut + personalNameOriginedOut.getSubRegionOrigin() + separatorOut + personalNameOriginedOut.getCountryOrigin() + separatorOut + personalNameOriginedOut.getCountryOriginAlt() + separatorOut + personalNameOriginedOut.getProbabilityCalibrated() + separatorOut + personalNameOriginedOut.getProbabilityAltCalibrated() + separatorOut + personalNameOriginedOut.getScore() + separatorOut + toCSV(personalNameOriginedOut.getCountriesOriginTop()) + separatorOut + scriptName + separatorOut);
+                if( religionoption ) {
+                    appendReligionStat(writer, personalNameOriginedOut.getReligionStats(),personalNameOriginedOut.getReligionStatsAlt());
+                }
             } else if (outputObj instanceof ProperNounCategorizedOut) {
                 ProperNounCategorizedOut properNounCategorizedOut = (ProperNounCategorizedOut) outputObj;
                 String scriptName = properNounCategorizedOut.getScript();//NamSorTools.computeScriptFirst(properNounCategorizedOut.getName());
                 writer.append(properNounCategorizedOut.getCommonType() + separatorOut + properNounCategorizedOut.getCommonTypeAlt() + separatorOut + properNounCategorizedOut.getScore() + separatorOut + scriptName + separatorOut);
             } else if (outputObj instanceof FirstLastNameDiasporaedOut) {
                 FirstLastNameDiasporaedOut firstLastNameDiasporaedOut = (FirstLastNameDiasporaedOut) outputObj;
+                String scriptName = firstLastNameDiasporaedOut.getScript();//NamSorTools.computeScriptFirst(firstLastNameDiasporaedOut.getLastName());
+                writer.append(firstLastNameDiasporaedOut.getEthnicity() + separatorOut + firstLastNameDiasporaedOut.getEthnicityAlt() + separatorOut + firstLastNameDiasporaedOut.getProbabilityCalibrated() + separatorOut + firstLastNameDiasporaedOut.getProbabilityAltCalibrated() + separatorOut + firstLastNameDiasporaedOut.getScore() + separatorOut + toCSV(firstLastNameDiasporaedOut.getEthnicitiesTop()) + separatorOut + scriptName + separatorOut);
+                if( religionoption ) {
+                    appendReligionStat(writer, firstLastNameDiasporaedOut.getReligionStats(),firstLastNameDiasporaedOut.getReligionStatsAlt());
+                }
+            } else if (outputObj instanceof PersonalNameDiasporaedOut) {
+                PersonalNameDiasporaedOut firstLastNameDiasporaedOut = (PersonalNameDiasporaedOut) outputObj;
                 String scriptName = firstLastNameDiasporaedOut.getScript();//NamSorTools.computeScriptFirst(firstLastNameDiasporaedOut.getLastName());
                 writer.append(firstLastNameDiasporaedOut.getEthnicity() + separatorOut + firstLastNameDiasporaedOut.getEthnicityAlt() + separatorOut + firstLastNameDiasporaedOut.getProbabilityCalibrated() + separatorOut + firstLastNameDiasporaedOut.getProbabilityAltCalibrated() + separatorOut + firstLastNameDiasporaedOut.getScore() + separatorOut + toCSV(firstLastNameDiasporaedOut.getEthnicitiesTop()) + separatorOut + scriptName + separatorOut);
                 if( religionoption ) {
@@ -1257,6 +1321,14 @@ public class NamSorTools {
                 PersonalNameGenderedOut personalNameGenderedOut = (PersonalNameGenderedOut) outputObj;
                 String scriptName = personalNameGenderedOut.getScript();//NamSorTools.computeScriptFirst(personalNameGenderedOut.getName());
                 writer.append(personalNameGenderedOut.getLikelyGender().getValue() + separatorOut + personalNameGenderedOut.getScore() + separatorOut + personalNameGenderedOut.getProbabilityCalibrated() + separatorOut + personalNameGenderedOut.getGenderScale() + separatorOut + scriptName + separatorOut);
+            } else if (outputObj instanceof FirstLastNameGeoOut) {
+                FirstLastNameGeoOut personalNameGeoOut = (FirstLastNameGeoOut) outputObj;
+                String scriptName = personalNameGeoOut.getScript();//NamSorTools.computeScriptFirst(personalNameGeoOut.getName());
+                //"region","topRegion","subRegion"
+                writer.append(personalNameGeoOut.getRegion() + separatorOut + personalNameGeoOut.getTopRegion() + separatorOut + personalNameGeoOut.getSubRegion() + separatorOut + personalNameGeoOut.getCountry() + separatorOut + personalNameGeoOut.getCountryAlt()  + separatorOut + personalNameGeoOut.getProbabilityCalibrated() + separatorOut + personalNameGeoOut.getProbabilityAltCalibrated() + separatorOut +personalNameGeoOut.getScore() + separatorOut + toCSV(personalNameGeoOut.getCountriesTop()) +  separatorOut + scriptName + separatorOut);
+                if( religionoption ) {
+                    appendReligionStat(writer, personalNameGeoOut.getReligionStats(),personalNameGeoOut.getReligionStatsAlt());
+                }
             } else if (outputObj instanceof PersonalNameGeoOut) {
                 PersonalNameGeoOut personalNameGeoOut = (PersonalNameGeoOut) outputObj;
                 String scriptName = personalNameGeoOut.getScript();//NamSorTools.computeScriptFirst(personalNameGeoOut.getName());
@@ -1287,7 +1359,7 @@ public class NamSorTools {
                         + firstLastNamePhoneCodedOut.getScore() + separatorOut
                         + scriptName);
             } else {
-                throw new IllegalArgumentException("Serialization of " + outputObj.getClass().getName() + " not supported");
+                throw new IllegalArgumentException("Serialization of output " + outputObj.getClass().getName() + " not supported");
             }
             writer.append(softwareNameAndVersion + separatorOut);
             writer.append((rowId++) + "\n");
