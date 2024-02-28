@@ -1114,7 +1114,7 @@ public class NamSorTools {
                 Map<String, FirstLastNameOriginedOut> origins = processOriginGeo(new ArrayList(firstLastNamesGeoIn.values()));
                 append(writer, outputHeaders, firstLastNamesGeoIn, origins, softwareNameAndVersion);
             } else if (service.equals(SERVICE_NAME_COUNTRY)) {
-                Map<String, FirstLastNameGeoOut> countrieds = processCountryFnLnGeo(new ArrayList(firstLastNamesIn.values()));
+                Map<String, FirstLastNameGeoOut> countrieds = processCountryFnLnGeo(new ArrayList(firstLastNamesGeoIn.values()));
                 append(writer, outputHeaders, firstLastNamesGeoIn, countrieds, softwareNameAndVersion);
             } else if (service.equals(SERVICE_NAME_GENDER)) {
                 Map<String, FirstLastNameGenderedOut> genders = processGenderGeo(new ArrayList(firstLastNamesGeoIn.values()));
@@ -1127,7 +1127,7 @@ public class NamSorTools {
                 append(writer, outputHeaders, firstLastNamesGeoIn, usRaceEthnicities, softwareNameAndVersion);
             } else if (service.equals(SERVICE_NAME_SUBDIVISION)) {
                 Map<String, FirstLastNameGeoSubclassificationOut> subclassifications = processSubclassification(new ArrayList(firstLastNamesGeoIn.values()));
-                append(writer, outputHeaders, firstLastNamesGeoIn, subclassifications, softwareNameAndVersion);
+                append(writer, outputHeaders, firstLastNamesGeoIn, subclassifications, softwareNameAndVersion);            
             }
             firstLastNamesGeoIn.clear();
         }
